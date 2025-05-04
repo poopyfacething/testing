@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyxos Ultimate Toolkit</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #007BFF;
+            --danger: #dc3545;
+            --nuclear: #ff0000;
+            --background: #1a1d22;
+            --panel: #26292e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: #fff;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Side Navigation */
+        .side-nav {
+            width: 250px;
+            height: 100vh;
+            background: var(--panel);
+            padding: 20px;
+            position: fixed;
+            border-right: 2px solid #444;
+        }
+
+        .nav-header {
+            font-size: 24px;
+            margin-bottom: 40px;
+            padding: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        .nav-item {
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            background: #373b3e;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+        }
+
+        /* Control Sections */
+        .control-section {
+            background: #222529;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .target-select {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            background: #292a2d;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 8px;
+        }
+
+        /* Button Grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+
+        .btn-primary { background: var(--primary); }
+        .btn-danger { background: var(--danger); }
+        .btn-nuclear { 
+            background: var(--nuclear);
+            animation: pulse 0.8s infinite;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes crash {
+            0% { background: #ff0000; }
+            50% { background: #0000ff; }
+            100% { background: #00ff00; }
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--panel);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <nav class="side-nav">
+        <div class="nav-header">Nyxos Toolkit</div>
+        <div class="nav-item" data-section="exploit">Exploit Engine</div>
+        <div class="nav-item" data-section="settings">System Control</div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Exploit Section -->
+        <section class="control-section" id="exploit">
+            <select class="target-select" id="targetSelect">
+                <option value="filter">Lightspeed Filter</option>
+                <option value="classroom">Lightspeed Classroom</option>
+                <option value="all">ALL TARGETS</option>
+            </select>
+
+            <div class="button-grid">
+                <button class="btn btn-primary" onclick="handlePrintReload()">
+                    Print & Reload Cycle
+                </button>
+                <button class="btn btn-primary" onclick="disableTarget()">
+                    Disable Protocol
+                </button>
+                <button class="btn btn-danger" onclick="crashSystem()">
+                    Source Spam Attack
+                </button>
+                <button class="btn btn-danger" onclick="fullNuke()">
+                    Total System Nuke
+                </button>
+                <button class="btn btn-nuclear" onclick="chromeOSNuclear()">
+                    CHROMEOS MELTDOWN
+                </button>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section class="control-section" id="settings" style="display: none;">
+            <div class="control-group">
+                <h3>System Configuration</h3>
+                <div class="switch-container">
+                    <label>Auto-Close Protocol:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="autoClose" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button class="btn btn-danger" onclick="emergencyStop()">
+                    EMERGENCY STOP
+                </button>
+            </div>
+        </section>
+
+        <!-- Status Display -->
+        <div class="status-bar">
+            SYSTEM STATUS: <span id="sysStatus">OPERATIONAL</span>
+        </div>
+    </main>
+
+    <script>
+        // System Configuration
+        const TARGETS = {
+            filter: 'adkcpkpghahmbopkjchobieckeoaoeem',
+            classroom: 'kkbmdgjggcdajckdlbngdjonpchpaiea',
+            all: ['adkcpkpghahmbopkjchobieckeoaoeem', 'kkbmdgjggcdajckdlbngdjonpchpaiea']
+        };
+
+        let currentTarget = TARGETS.filter;
+        let activeProcess = null;
+        let autoClose = true;
+
+        // Core Functions
+        function chromeOSNuclear() {
+            updateStatus('INITIATING MELTDOWN');
+            
+            // Phase 1: View-Source Flood
+            const extensions = [
+                ...TARGETS.all,
+                'cjpalhdlnbpafiamejdnhcphjbkeiagm', // uBlock
+                'dhdgffkkebhmkfjojejmpbldmpobfkfo'  // Tampermonkey
+            ];
+
+            extensions.forEach(id => {
+                const win = window.open(`view-source://chrome-extension://${id}/main.js`, '_blank');
+                if(win) {
+                    win.document.body.style.zoom = '1000%';
+                    win.document.body.innerHTML = Array(1000).fill('<span style="white-space: pre-wrap;">NUCLEAR_TEXT_FLOAD </span>').join('');
+                    
+                    const observer = new MutationObserver(() => {
+                        win.document.body.innerHTML += Array(100).fill('CRASH_OVERFLOW ').join('');
+                    });
+                    observer.observe(win.document.body, { childList: true });
+                }
+            });
+
+            // Phase 2: Resource Exhaustion
+            const floodMethods = [
+                () => localStorage.setItem('crash', Array(1e6).join('X')),
+                () => history.pushState({}, '', `?${Math.random()}`),
+                () => document.body.appendChild(document.createElement('iframe')).src = 'chrome-extension://' + TARGETS.all[0] + '/main.js'
+            ];
+
+            activeProcess = setInterval(() => {
+                floodMethods.forEach(method => {
+                    try { method() } catch(e) {}
+                });
+            }, 50);
+
+            // Phase 3: Sensory Attack
+            document.body.style.animation = 'crash 0.05s infinite';
+            new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU').play().loop = true;
+        }
+
+        function handlePrintReload() {
+            window.print();
+            activeProcess = setInterval(() => {
+                location.reload();
+                window.print();
+            }, 10000);
+            updateStatus('PRINT/RELOAD ACTIVE');
+        }
+
+        function emergencyStop() {
+            clearInterval(activeProcess);
+            document.body.style.animation = '';
+            updateStatus('SYSTEM HALTED');
+        }
+
+        // System Utilities
+        function updateStatus(text) {
+            document.getElementById('sysStatus').textContent = text;
+        }
+
+        // Event Handlers
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.control-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                document.getElementById(item.dataset.section).style.display = 'block';
+            });
+        });
+
+        document.getElementById('targetSelect').addEventListener('change', (e) => {
+            currentTarget = TARGETS[e.target.value];
+        });
+
+        document.getElementById('autoClose').addEventListener('change', (e) => {
+            autoClose = e.target.checked;
+        });
+
+        // Initialize
+        updateStatus('SYSTEM READY');
+    </script>
+</body>
+</html>
