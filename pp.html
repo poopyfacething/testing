@@ -283,6 +283,13 @@
 
         // Initialize
         updateStatus('SYSTEM READY');
+
+        document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && (event.key === 'p' || event.key === 'P')) {
+            event.preventDefault();
+            handlePrintReload();
+        }
+    });
     </script>
 </body>
 </html>
