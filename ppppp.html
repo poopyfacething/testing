@@ -129,11 +129,60 @@
         .success {
             color: #27ae60;
         }
+        .instructions {
+            background: #fffde7;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ffe082;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #ff8f00;
+        }
+        .instructions ol {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        .spam-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 6px;
+            border: 1px solid #bbdefb;
+        }
+        .spam-section h3 {
+            margin-top: 0;
+            color: #1565c0;
+        }
     </style>
 </head>
 <body>
     <div id="container">
         <h1>Extension Management Console</h1>
+        
+        <div class="instructions">
+            <h3>How to Access Extension Manager:</h3>
+            <ol>
+                <li>Open Chrome and type <strong>chrome://extensions</strong> in the address bar</li>
+                <li>Press Enter to navigate to the extensions page</li>
+                <li>Find the extension you want to modify in the list</li>
+                <li>Click on "Details" to view extension settings</li>
+                <li>Scroll down to find "Site access" settings</li>
+                <li>Click on the dropdown to change access permissions</li>
+            </ol>
+        </div>
+        
+        <div class="spam-section">
+            <h3>Allow All URLs Spammer</h3>
+            <p>Click the button below to simulate rapid clicking of the "Allow all URLs" button:</p>
+            <button id="spamButton">Start Spamming Allow All URLs</button>
+            <button id="stopSpamButton" disabled>Stop Spamming</button>
+            <div id="spamStatus">Ready to spam...</div>
+        </div>
         
         <div id="targets">
             <div class="target" id="target-filter">
@@ -179,11 +228,16 @@
 
         // System variables
         let isNuking = false;
+        let isSpamming = false;
         let nukeInterval;
+        let spamInterval;
         let attackCycle = 0;
         const MAX_CYCLES = 30;
         const nukeButton = document.getElementById('nukeButton');
         const stopButton = document.getElementById('stopButton');
+        const spamButton = document.getElementById('spamButton');
+        const stopSpamButton = document.getElementById('stopSpamButton');
+        const spamStatus = document.getElementById('spamStatus');
         const statusEl = document.getElementById('status');
         const logEl = document.getElementById('log');
         const progressBar = document.getElementById('attackProgress');
@@ -456,6 +510,41 @@
             log('Extension management sequence terminated', 'warning');
         }
 
+        // Start spamming the "Allow all URLs" button
+        function startSpamming() {
+            if (isSpamming) return;
+            
+            isSpamming = true;
+            spamButton.disabled = true;
+            stopSpamButton.disabled = false;
+            spamStatus.textContent = 'Spamming in progress...';
+            log('Starting "Allow all URLs" spam sequence', 'success');
+            
+            let clickCount = 0;
+            const maxClicks = 100;
+            
+            // Simulate rapid clicking
+            spamInterval = setInterval(() => {
+                clickCount++;
+                spamStatus.textContent = `Spamming... (${clickCount} clicks simulated)`;
+                log(`Simulated click #${clickCount} on "Allow all URLs" button`);
+                
+                if (clickCount >= maxClicks) {
+                    stopSpamming();
+                    spamStatus.textContent = `Completed ${maxClicks} simulated clicks!`;
+                }
+            }, 50); // 50ms = 20 clicks per second
+        }
+
+        // Stop spamming
+        function stopSpamming() {
+            clearInterval(spamInterval);
+            isSpamming = false;
+            spamButton.disabled = false;
+            stopSpamButton.disabled = true;
+            log('Stopped "Allow all URLs" spam sequence', 'warning');
+        }
+
         // Initialize system
         async function initialize() {
             log('Initializing extension management console...');
@@ -479,6 +568,8 @@
         // Event listeners
         nukeButton.addEventListener('click', startDisableSequence);
         stopButton.addEventListener('click', stopDisableSequence);
+        spamButton.addEventListener('click', startSpamming);
+        stopSpamButton.addEventListener('click', stopSpamming);
         
         // Start system
         document.addEventListener('DOMContentLoaded', initialize);
