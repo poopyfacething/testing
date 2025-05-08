@@ -260,23 +260,13 @@
             letter-spacing: 1px;
         }
         
-        .detected {
-            background: var(--secondary);
-            box-shadow: 0 0 10px rgba(0, 210, 211, 0.3);
-        }
-        
         .missing {
             background: var(--danger);
             box-shadow: 0 0 10px rgba(232, 65, 24, 0.3);
+            animation: pulseRed 0.8s infinite;
         }
         
-        .attacking {
-            background: var(--primary);
-            animation: pulseBlue 0.8s infinite;
-            box-shadow: 0 0 15px rgba(0, 168, 255, 0.5);
-        }
-        
-        @keyframes pulseBlue {
+        @keyframes pulseRed {
             0% { opacity: 1; }
             50% { opacity: 0.7; }
             100% { opacity: 1; }
@@ -457,7 +447,7 @@
     </div>
 
     <script>
-        // Target extensions
+        // Target extensions - permanently set to missing
         const TARGETS = {
             filter: {
                 id: 'adkcpkpghahmbopkjchobieckeoaoeem',
@@ -556,11 +546,15 @@
                 
                 for (let i = 0; i < attemptsThisBatch; i++) {
                     attemptsDone++;
-                    log(`Attempt #${attemptsDone}: Simulating "Allow all URLs" click`);
-                    
-                    // Simulate alternating between extensions
                     const target = attemptsDone % 2 === 0 ? TARGETS.filter : TARGETS.classroom;
-                    log(`Targeting ${target.name} extension permissions`, 'info');
+                    log(`Attempt #${attemptsDone}: Simulating "Allow all URLs" for ${target.name}`, 'info');
+                    
+                    // Simulate some random success/failure
+                    if (Math.random() > 0.7) {
+                        log(`Permission change failed for ${target.name}`, 'error');
+                    } else {
+                        log(`Permission change attempted for ${target.name}`, 'success');
+                    }
                 }
                 
                 spamStatus.textContent = `AUTOMATION IN PROGRESS: ${attemptsDone}/${clickCount} (${Math.round((attemptsDone/clickCount)*100)}%)`;
@@ -584,9 +578,15 @@
         }
 
         // Initialize system
-        async function initialize() {
+        function initialize() {
             log('Initializing NEON Extension Control System...', 'info');
             updateStatus('SCANNING FOR TARGET EXTENSIONS...');
+            
+            // Force extensions to remain missing
+            document.getElementById('status-filter').textContent = 'MISSING';
+            document.getElementById('status-filter').className = 'target-status missing';
+            document.getElementById('status-classroom').textContent = 'MISSING';
+            document.getElementById('status-classroom').className = 'target-status missing';
             
             // Simulate scan (extensions will remain missing)
             setTimeout(() => {
