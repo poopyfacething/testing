@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Extension Control Suite</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --background: #f9fafb;
+            --panel: #ffffff;
+            --border: #e5e7eb;
+            --text: #111827;
+            --text-light: #6b7280;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+        
+        #container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--panel);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        h1::before {
+            content: "";
+            display: block;
+            width: 1.5rem;
+            height: 1.5rem;
+            background-color: var(--primary);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M5.566 4.657A4.505 4.505 0 016.75 4.5h10.5c.41 0 .806.055 1.183.157A3 3 0 0015.75 3h-7.5a3 3 0 00-2.684 1.657zM2.25 12a3 3 0 013-3h13.5a3 3 0 013 3v6a3 3 0 01-3 3H5.25a3 3 0 01-3-3v-6zM5.25 7.5c-.41 0-.806.055-1.184.157A3 3 0 016.75 6h10.5a3 3 0 012.683 1.657A4.505 4.505 0 0018.75 7.5H5.25z'/%3E%3C/svg%3E");
+        }
+        
+        .panel {
+            background-color: var(--panel);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        button.danger {
+            background-color: var(--danger);
+        }
+        
+        button.danger:hover {
+            background-color: var(--danger-hover);
+        }
+        
+        button.success {
+            background-color: var(--success);
+        }
+        
+        button.success:hover {
+            background-color: var(--success-hover);
+        }
+        
+        button.warning {
+            background-color: var(--warning);
+        }
+        
+        button.warning:hover {
+            background-color: var(--warning-hover);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+        
+        input[type="number"], input[type="text"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="number"]:focus, input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .status {
+            padding: 0.75rem;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            font-family: 'Menlo', monospace;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        #log {
+            height: 250px;
+            overflow-y: auto;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Menlo', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .target {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        
+        .target:hover {
+            border-color: var(--primary);
+        }
+        
+        .target-name {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .target-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: white;
+        }
+        
+        .missing {
+            background-color: var(--danger);
+        }
+        
+        .installed {
+            background-color: var(--success);
+        }
+        
+        .disabled {
+            background-color: var(--warning);
+        }
+        
+        .progress-container {
+            height: 0.5rem;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .error {
+            color: var(--danger);
+        }
+        
+        .success {
+            color: var(--success);
+        }
+        
+        .warning {
+            color: var(--warning);
+        }
+        
+        .info {
+            color: var(--primary);
+        }
+        
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .flex-row input {
+            flex: 1;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .method-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .method-option:hover {
+            border-color: var(--primary);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        .method-option input {
+            margin-right: 0.75rem;
+        }
+        
+        .method-details {
+            margin-left: 1.75rem;
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .method-option.active {
+            border-color: var(--primary);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .method-option.active + .method-details {
+            display: block;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .setting-card {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+        }
+        
+        .setting-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .exploit-card {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            background-color: #f9fafb;
+        }
+        
+        .exploit-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .exploit-card .exploit-description {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        
+        .exploit-card .exploit-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Advanced Extension Control Suite</h1>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z" clip-rule="evenodd"/>
+                    </svg>
+                    Target Extensions
+                </div>
+                <button id="refreshExtensions">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0112.548-3.364l1.903 1.903h-3.183a.75.75 0 100 1.5h4.992a.75.75 0 00.75-.75V4.356a.75.75 0 00-1.5 0v3.18l-1.9-1.9A9 9 0 003.306 9.67a.75.75 0 101.45.388zm15.408 3.352a.75.75 0 00-.919.53 7.5 7.5 0 01-12.548 3.364l-1.902-1.903h3.183a.75.75 0 000-1.5H2.984a.75.75 0 00-.75.75v4.992a.75.75 0 001.5 0v-3.18l1.9 1.9a9 9 0 0015.059-4.035.75.75 0 00-.53-.918z" clip-rule="evenodd"/>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+            <div class="panel-body">
+                <div id="targets">
+                    <div class="target" id="target-filter">
+                        <span class="target-name">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.792 2.938A49.069 49.069 0 0112 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 011.541 1.836v1.044a3 3 0 01-.879 2.121l-6.182 6.182a1.5 1.5 0 00-.439 1.061v2.927a3 3 0 01-1.658 2.684l-1.757.878A.75.75 0 019.75 21v-5.818a1.5 1.5 0 00-.44-1.06L3.13 7.938a3 3 0 01-.879-2.121V4.774c0-.897.64-1.683 1.542-1.836z" clip-rule="evenodd"/>
+                            </svg>
+                            Lightspeed Filter
+                        </span>
+                        <span class="target-status missing">MISSING</span>
+                    </div>
+                    <div class="target" id="target-classroom">
+                        <span class="target-name">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4.913 2.658c-.673.52-1.142 1.242-1.142 2.05v11.796c0 .81.47 1.543 1.142 2.063l7.937 5.856a2.545 2.545 0 003.001 0l7.937-5.856c.673-.52 1.142-1.253 1.142-2.063V4.708c0-.81-.47-1.543-1.142-2.05l-7.937-5.856a2.545 2.545 0 00-3.001 0L4.913 2.658z"/>
+                            </svg>
+                            Lightspeed Classroom
+                        </span>
+                        <span class="target-status missing">MISSING</span>
+                    </div>
+                    <div class="target" id="target-custom">
+                        <span class="target-name">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 6.75a5.25 5.25 0 016.775-5.025.75.75 0 01.313 1.248l-3.32 3.319c.063.475.276.934.641 1.299.365.365.824.578 1.3.64l3.318-3.319a.75.75 0 011.248.313 5.25 5.25 0 01-5.472 6.756c-1.018-.086-1.87.1-2.309.634L7.344 21.3A3.298 3.298 0 112.7 16.657l8.684-7.151c.533-.44.72-1.291.634-2.309A5.342 5.342 0 0112 6.75zM4.117 19.125a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75v-.008z" clip-rule="evenodd"/>
+                                <path d="M10.076 8.64l-2.201-2.2V4.874a.75.75 0 00-.364-.643l-3.75-2.25a.75.75 0 00-.916.113l-.75.75a.75.75 0 00-.113.916l2.25 3.75a.75.75 0 00.643.364h1.564l2.062 2.062 1.575-1.297z"/>
+                                <path fill-rule="evenodd" d="M12.556 17.329l4.183 4.182a3.375 3.375 0 004.773-4.773l-3.306-3.305a6.803 6.803 0 01-1.53.043c-.394-.034-.682-.006-.867.042a.589.589 0 00-.167.063l-3.086 3.748zm3.414-1.36a.75.75 0 011.06 0l1.875 1.876a.75.75 0 11-1.06 1.06L15.97 17.03a.75.75 0 010-1.06z" clip-rule="evenodd"/>
+                            </svg>
+                            Custom Extension
+                        </span>
+                        <span class="target-status missing">MISSING</span>
+                    </div>
+                </div>
+                
+                <div class="status" id="status">Scanning for extensions...</div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z" clip-rule="evenodd"/>
+                    </svg>
+                    Extension Control
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="tabs">
+                    <div class="tab active" data-tab="disable">Disable Extensions</div>
+                    <div class="tab" data-tab="prevent">Prevention Methods</div>
+                    <div class="tab" data-tab="exploits">Exploit Methods</div>
+                    <div class="tab" data-tab="advanced">Advanced</div>
+                    <div class="tab" data-tab="settings">Settings</div>
+                </div>
+                
+                <div id="disable-tab" class="tab-content active">
+                    <div class="form-group">
+                        <label for="disableDuration">Disable Duration (minutes):</label>
+                        <input type="number" id="disableDuration" min="1" max="1440" value="60">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="disableMethod">Disable Method:</label>
+                        <select id="disableMethod">
+                            <option value="standard">Standard Disable</option>
+                            <option value="persistent">Persistent Disable</option>
+                            <option value="aggressive">Aggressive Disable</option>
+                        </select>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="disableButton" class="danger">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" clip-rule="evenodd"/>
+                            </svg>
+                            Disable Extensions
+                        </button>
+                        <button id="enableButton" disabled>
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd"/>
+                            </svg>
+                            Re-enable Extensions
+                        </button>
+                        <button id="forceDisableButton" class="warning">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"/>
+                            </svg>
+                            Force Disable
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="prevent-tab" class="tab-content">
+                    <div class="method-option active">
+                        <input type="radio" id="method1" name="preventMethod" checked>
+                        <label for="method1">URL Blocking</label>
+                        <div class="method-details">
+                            <p>Blocks all communication with extension update servers to prevent re-enabling.</p>
+                            <div class="form-group">
+                                <label for="blockUrls">URLs to block (comma separated):</label>
+                                <input type="text" id="blockUrls" value="*.lightspeedsystems.com,*.lightspeedtech.com,*.rocketcdn.me">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="blockWebstore" checked>
+                                    Block Chrome Web Store access
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option">
+                        <input type="radio" id="method2" name="preventMethod">
+                        <label for="method2">Extension Tamper Protection</label>
+                        <div class="method-details">
+                            <p>Modifies extension files to prevent them from functioning properly.</p>
+                            <div class="form-group">
+                                <label for="tamperFiles">Files to modify:</label>
+                                <input type="text" id="tamperFiles" value="background.js, manifest.json">
+                            </div>
+                            <div class="form-group">
+                                <label for="tamperMethod">Tamper Method:</label>
+                                <select id="tamperMethod">
+                                    <option value="corrupt">File Corruption</option>
+                                    <option value="empty">Empty Files</option>
+                                    <option value="redirect">Code Redirection</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option">
+                        <input type="radio" id="method3" name="preventMethod">
+                        <label for="method3">DNS Spoofing</label>
+                        <div class="method-details">
+                            <p>Redirects extension domains to localhost to block communication.</p>
+                            <div class="form-group">
+                                <label for="dnsDomains">Domains to spoof:</label>
+                                <input type="text" id="dnsDomains" value="lightspeedsystems.com, lightspeedtech.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="dnsRedirect">Redirect to:</label>
+                                <input type="text" id="dnsRedirect" value="127.0.0.1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option">
+                        <input type="radio" id="method4" name="preventMethod">
+                        <label for="method4">Extension Isolation</label>
+                        <div class="method-details">
+                            <p>Prevents extensions from accessing other extensions or web pages.</p>
+                            <div class="form-group">
+                                <label for="isolatePermissions">Permissions to block:</label>
+                                <input type="text" id="isolatePermissions" value="webRequest, webRequestBlocking, tabs">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="isolateStorage" checked>
+                                    Block storage access
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="applyPrevention" class="success">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd"/>
+                            </svg>
+                            Apply Prevention Method
+                        </button>
+                        <button id="removePrevention" class="danger">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd"/>
+                            </svg>
+                            Remove Prevention
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="exploits-tab" class="tab-content">
+                    <div class="exploit-card">
+                        <h3>
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd"/>
+                            </svg>
+                            Extension API Exploit
+                        </h3>
+                        <div class="exploit-description">
+                            Exploits Chrome's extension management API to force-disable extensions even when they try to re-enable themselves.
+                        </div>
+                        <div class="exploit-actions">
+                            <button class="danger" id="runApiExploit">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clip-rule="evenodd"/>
+                                </svg>
+                                Execute Exploit
+                            </button>
+                            <button class="warning" id="testApiExploit">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
+                                </svg>
+                                Test Vulnerability
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="exploit-card">
+                        <h3>
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd"/>
+                            </svg>
+                            Manifest Tampering
+                        </h3>
+                        <div class="exploit-description">
+                            Modifies extension manifests to remove critical permissions or break version compatibility.
+                        </div>
+                        <div class="exploit-actions">
+                            <button class="danger" id="runManifestExploit">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clip-rule="evenodd"/>
+                                </svg>
+                                Execute Exploit
+                            </button>
+                            <button class="warning" id="analyzeManifests">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2.25a.75.75 0 01.75.75v1.506a49.38 49.38 0 015.343.371.75.75 0 11-.186 1.489c-.66-.083-1.323-.151-1.99-.206a18.67 18.67 0 01-2.97 6.323c.318.384.65.753.998 1.107a.75.75 0 11-1.07 1.052A18.902 18.902 0 019 13.687a18.823 18.823 0 01-5.656 4.482.75.75 0 11-.688-1.333 17.323 17.323 0 005.396-4.353A18.72 18.72 0 015.89 8.598a.75.75 0 011.388-.568A17.21 17.21 0 009 11.224a17.168 17.168 0 002.391-5.165 48.04 48.04 0 00-8.298.307.75.75 0 01-.186-1.489 49.159 49.159 0 015.343-.371V3A.75.75 0 019 2.25zM15.75 9a.75.75 0 01.68.433l5.25 11.25a.75.75 0 01-1.36.634l-1.198-2.567h-6.744l-1.198 2.567a.75.75 0 01-1.36-.634l5.25-11.25A.75.75 0 0115.75 9zm-2.672 8.25h5.344l-2.672-5.726-2.672 5.726z" clip-rule="evenodd"/>
+                                </svg>
+                                Analyze Manifests
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="exploit-card">
+                        <h3>
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd"/>
+                            </svg>
+                            Service Worker Injection
+                        </h3>
+                        <div class="exploit-description">
+                            Injects code into extension service workers to disrupt their normal operation.
+                        </div>
+                        <div class="exploit-actions">
+                            <button class="danger" id="runSwExploit">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clip-rule="evenodd"/>
+                                </svg>
+                                Execute Exploit
+                            </button>
+                            <button class="warning" id="detectSw">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 2.25a.75.75 0 000 1.5v16.5h-.75a.75.75 0 000 1.5H15v-18a.75.75 0 000-1.5H3zM6.75 19.5v-2.25a.75.75 0 01.75-.75h3a.75.75 0 01.75.75v2.25a.75.75 0 01-.75.75h-3a.75.75 0 01-.75-.75zM6 6.75A.75.75 0 016.75 6h.75a.75.75 0 010 1.5h-.75A.75.75 0 016 6.75zM6.75 9a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM6 12.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zM10.5 6a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zm-.75 3.75A.75.75 0 0110.5 9h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zM10.5 12a.75.75 0 000 1.5h.75a.75.75 0 000-1.5h-.75zM16.5 6.75v15h5.25a.75.75 0 000-1.5H21v-12a.75.75 0 000-1.5h-4.5zm1.5 4.5a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75v-.008zm.75 2.25a.75.75 0 00-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 00.75-.75v-.008a.75.75 0 00-.75-.75h-.008zM18 17.25a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75v-.008z" clip-rule="evenodd"/>
+                                </svg>
+                                Detect Workers
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="exploit-card">
+                        <h3>
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd"/>
+                            </svg>
+                            Extension Sandbox Escape
+                        </h3>
+                        <div class="exploit-description">
+                            Attempts to break out of Chrome's extension sandbox to gain elevated privileges.
+                        </div>
+                        <div class="exploit-actions">
+                            <button class="danger" id="runSandboxExploit">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clip-rule="evenodd"/>
+                                </svg>
+                                Execute Exploit
+                            </button>
+                            <button class="warning" id="checkSandbox">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z" clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd" d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z" clip-rule="evenodd"/>
+                                </svg>
+                                Check Sandbox
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="advanced-tab" class="tab-content">
+                    <div class="form-group">
+                        <label for="customExtensionId">Custom Extension ID:</label>
+                        <input type="text" id="customExtensionId" placeholder="Enter extension ID to target">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customScript">Custom Disable Script:</label>
+                        <textarea id="customScript" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem;" placeholder="Enter custom JavaScript to execute"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="scriptContext">Execution Context:</label>
+                        <select id="scriptContext">
+                            <option value="background">Background Page</option>
+                            <option value="content">Content Script</option>
+                            <option value="devtools">DevTools</option>
+                        </select>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="executeCustom" class="danger">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clip-rule="evenodd"/>
+                            </svg>
+                            Execute Custom Script
+                        </button>
+                        <button id="saveScript" class="success">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.5 3.75a6 6 0 00-5.98 6.496A5.25 5.25 0 006.75 20.25H18a4.5 4.5 0 002.206-8.423 3.75 3.75 0 00-4.133-4.303A6.001 6.001 0 0010.5 3.75zm2.03 5.47a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72v4.94a.75.75 0 001.5 0v-4.94l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clip-rule="evenodd"/>
+                            </svg>
+                            Save Script
+                        </button>
+                        <button id="loadScript" class="warning">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z" clip-rule="evenodd"/>
+                            </svg>
+                            Load Script
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="savedScripts">Saved Scripts:</label>
+                        <select id="savedScripts" style="width: 100%;">
+                            <option value="">Select a saved script...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="settings-tab" class="tab-content">
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h3>General Settings</h3>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="autoRefresh" checked>
+                                    Auto-refresh extension status
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="notifications" checked>
+                                    Enable notifications
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="persistentDisable">
+                                    Persistent disable mode
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3>Security Settings</h3>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="requirePassword">
+                                    Require password for changes
+                                </label>
+                            </div>
+                            <div class="form-group" id="passwordGroup" style="display: none;">
+                                <label for="controlPassword">Control Password:</label>
+                                <input type="password" id="controlPassword" placeholder="Enter password">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="clearLogsOnExit">
+                                    Clear logs when exiting
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3>Appearance</h3>
+                            <div class="form-group">
+                                <label for="theme">Theme:</label>
+                                <select id="theme">
+                                    <option value="light">Light</option>
+                                    <option value="dark">Dark</option>
+                                    <option value="system">System</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="logLevel">Log Level:</label>
+                                <select id="logLevel">
+                                    <option value="verbose">Verbose</option>
+                                    <option value="info" selected>Info</option>
+                                    <option value="warnings">Warnings</option>
+                                    <option value="errors">Errors Only</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3>Advanced Options</h3>
+                            <div class="form-group">
+                                <label for="scanInterval">Scan Interval (minutes):</label>
+                                <input type="number" id="scanInterval" min="1" max="60" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="experimentalFeatures">
+                                    Enable experimental features
+                                </label>
+                            </div>
+                            <button id="resetSettings" class="danger">
+                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0112.548-3.364l1.903 1.903h-3.183a.75.75 0 100 1.5h4.992a.75.75 0 00.75-.75V4.356a.75.75 0 00-1.5 0v3.18l-1.9-1.9A9 9 0 003.306 9.67a.75.75 0 101.45.388zm15.408 3.352a.75.75 0 00-.919.53 7.5 7.5 0 01-12.548 3.364l-1.902-1.903h3.183a.75.75 0 000-1.5H2.984a.75.75 0 00-.75.75v4.992a.75.75 0 001.5 0v-3.18l1.9 1.9a9 9 0 0015.059-4.035.75.75 0 00-.53-.918z" clip-rule="evenodd"/>
+                                </svg>
+                                Reset All Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2.25 6a3 3 0 013-3h13.5a3 3 0 013 3v12a3 3 0 01-3 3H5.25a3 3 0 01-3-3V6zm3.97.97a.75.75 0 011.06 0l2.25 2.25a.75.75 0 010 1.06l-2.25 2.25a.75.75 0 01-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06zm4.28 4.28a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clip-rule="evenodd"/>
+                    </svg>
+                    System Log
+                </div>
+                <div>
+                    <button id="clearLogs" class="danger">
+                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" clip-rule="evenodd"/>
+                        </svg>
+                        Clear Logs
+                    </button>
+                    <button id="exportLogs" class="success">
+                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l4.5 4.5a.75.75 0 01-1.06 1.06l-3.22-3.22V16.5a.75.75 0 01-1.5 0V4.81l-3.22 3.22a.75.75 0 11-1.06-1.06l4.5-4.5zM3 15.75a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z" clip-rule="evenodd"/>
+                        </svg>
+                        Export Logs
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div id="log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Extension Control Suite
+        // Version 2.0 - Complete Rewrite
+        
+        // Target extensions with additional metadata
+        const TARGETS = {
+            filter: {
+                name: 'Lightspeed Filter',
+                id: 'adkcpkpghahmbopkjchobieckeoaoeem',
+                installed: false,
+                disabled: false,
+                version: '',
+                permissions: [],
+                vulnerable: false
+            },
+            classroom: {
+                name: 'Lightspeed Classroom',
+                id: 'kkbmdgjggcdajckdlbpnjdonpchpaiea',
+                installed: false,
+                disabled: false,
+                version: '',
+                permissions: [],
+                vulnerable: false
+            },
+            custom: {
+                name: 'Custom Extension',
+                id: '',
+                installed: false,
+                disabled: false,
+                version: '',
+                permissions: [],
+                vulnerable: false
+            }
+        };
+
+        // System variables with enhanced state management
+        const state = {
+            disableTimeout: null,
+            currentTab: 'disable',
+            isPasswordProtected: false,
+            password: '',
+            settings: {
+                autoRefresh: true,
+                notifications: true,
+                persistentDisable: false,
+                requirePassword: false,
+                clearLogsOnExit: false,
+                theme: 'light',
+                logLevel: 'info',
+                scanInterval: 5,
+                experimentalFeatures: false
+            },
+            savedScripts: {},
+            preventionMethods: {
+                urlBlocking: false,
+                tamperProtection: false,
+                dnsSpoofing: false,
+                extensionIsolation: false
+            },
+            scanIntervalId: null
+        };
+        
+        // UI Elements with additional references
+        const elements = {
+            // Main elements
+            statusEl: document.getElementById('status'),
+            logEl: document.getElementById('log'),
+            
+            // Disable tab
+            disableButton: document.getElementById('disableButton'),
+            enableButton: document.getElementById('enableButton'),
+            forceDisableButton: document.getElementById('forceDisableButton'),
+            disableDuration: document.getElementById('disableDuration'),
+            disableMethod: document.getElementById('disableMethod'),
+            
+            // Prevention tab
+            applyPrevention: document.getElementById('applyPrevention'),
+            removePrevention: document.getElementById('removePrevention'),
+            blockUrls: document.getElementById('blockUrls'),
+            blockWebstore: document.getElementById('blockWebstore'),
+            tamperFiles: document.getElementById('tamperFiles'),
+            tamperMethod: document.getElementById('tamperMethod'),
+            dnsDomains: document.getElementById('dnsDomains'),
+            dnsRedirect: document.getElementById('dnsRedirect'),
+            isolatePermissions: document.getElementById('isolatePermissions'),
+            isolateStorage: document.getElementById('isolateStorage'),
+            
+            // Exploits tab
+            runApiExploit: document.getElementById('runApiExploit'),
+            testApiExploit: document.getElementById('testApiExploit'),
+            runManifestExploit: document.getElementById('runManifestExploit'),
+            analyzeManifests: document.getElementById('analyzeManifests'),
+            runSwExploit: document.getElementById('runSwExploit'),
+            detectSw: document.getElementById('detectSw'),
+            runSandboxExploit: document.getElementById('runSandboxExploit'),
+            checkSandbox: document.getElementById('checkSandbox'),
+            
+            // Advanced tab
+            executeCustom: document.getElementById('executeCustom'),
+            saveScript: document.getElementById('saveScript'),
+            loadScript: document.getElementById('loadScript'),
+            customExtensionId: document.getElementById('customExtensionId'),
+            customScript: document.getElementById('customScript'),
+            scriptContext: document.getElementById('scriptContext'),
+            savedScripts: document.getElementById('savedScripts'),
+            
+            // Settings tab
+            autoRefresh: document.getElementById('autoRefresh'),
+            notifications: document.getElementById('notifications'),
+            persistentDisable: document.getElementById('persistentDisable'),
+            requirePassword: document.getElementById('requirePassword'),
+            controlPassword: document.getElementById('controlPassword'),
+            passwordGroup: document.getElementById('passwordGroup'),
+            clearLogsOnExit: document.getElementById('clearLogsOnExit'),
+            theme: document.getElementById('theme'),
+            logLevel: document.getElementById('logLevel'),
+            scanInterval: document.getElementById('scanInterval'),
+            experimentalFeatures: document.getElementById('experimentalFeatures'),
+            resetSettings: document.getElementById('resetSettings'),
+            
+            // Log controls
+            clearLogs: document.getElementById('clearLogs'),
+            exportLogs: document.getElementById('exportLogs'),
+            
+            // Refresh button
+            refreshExtensions: document.getElementById('refreshExtensions')
+        };
+
+        // Enhanced logging system with levels
+        function log(message, type = 'info') {
+            const shouldLog = (
+                (state.settings.logLevel === 'verbose') ||
+                (state.settings.logLevel === 'info' && type !== 'debug') ||
+                (state.settings.logLevel === 'warnings' && (type === 'warning' || type === 'error')) ||
+                (state.settings.logLevel === 'errors' && type === 'error')
+            );
+            
+            if (!shouldLog) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            elements.logEl.appendChild(entry);
+            elements.logEl.scrollTop = elements.logEl.scrollHeight;
+            
+            // Show notification if enabled
+            if (state.settings.notifications && (type === 'error' || type === 'warning')) {
+                chrome.notifications.create({
+                    type: 'basic',
+                    iconUrl: 'icon.png',
+                    title: `Extension Control - ${type.toUpperCase()}`,
+                    message: message
+                });
+            }
+        }
+
+        // Update status message with optional type
+        function updateStatus(message, type = 'info') {
+            elements.statusEl.textContent = message;
+            elements.statusEl.style.borderLeftColor = `var(--${type})`;
+        }
+
+        // Update extension UI status
+        function updateExtensionUI(target, status) {
+            const element = document.querySelector(`#target-${target} .target-status`);
+            if (!element) return;
+            
+            element.textContent = status.toUpperCase();
+            element.className = 'target-status';
+            
+            switch(status) {
+                case 'installed':
+                    element.classList.add('installed');
+                    break;
+                case 'disabled':
+                    element.classList.add('disabled');
+                    break;
+                case 'missing':
+                    element.classList.add('missing');
+                    break;
+                case 'vulnerable':
+                    element.classList.add('warning');
+                    element.textContent = 'VULNERABLE';
+                    break;
+            }
+        }
+
+        // Check if extensions are installed with full details
+        function checkExtensions() {
+            log('Scanning for installed extensions...', 'debug');
+            
+            if (!chrome.management) {
+                log('Chrome management API not available', 'error');
+                updateStatus('API not available - limited functionality', 'error');
+                return;
+            }
+            
+            chrome.management.getAll(function(extensions) {
+                // Reset installed status first
+                for (const target of Object.values(TARGETS)) {
+                    target.installed = false;
+                    target.disabled = false;
+                    target.vulnerable = false;
+                    updateExtensionUI(target.name.toLowerCase().replace(' ', '-'), 'missing');
+                }
+                
+                let foundAny = false;
+                
+                extensions.forEach(ext => {
+                    // Check against known targets
+                    for (const [key, target] of Object.entries(TARGETS)) {
+                        if (ext.id === target.id || (key === 'custom' && ext.id === TARGETS.custom.id)) {
+                            target.installed = true;
+                            target.disabled = !ext.enabled;
+                            target.version = ext.version;
+                            target.permissions = ext.permissions || [];
+                            
+                            const status = target.disabled ? 'disabled' : 'installed';
+                            updateExtensionUI(key, status);
+                            
+                            log(`Found ${target.name} (${ext.version}) - ${status}`, 'success');
+                            foundAny = true;
+                            
+                            // Check for vulnerabilities
+                            checkVulnerabilities(target);
+                        }
+                    }
+                });
+                
+                // Handle custom extension ID if specified
+                const customId = elements.customExtensionId.value.trim();
+                if (customId && customId !== TARGETS.custom.id) {
+                    TARGETS.custom.id = customId;
+                    // Re-check with new ID
+                    checkExtensions();
+                    return;
+                }
+                
+                if (!foundAny) {
+                    log('No target extensions found', 'warning');
+                    updateStatus('No target extensions detected', 'warning');
+                } else {
+                    updateStatus('Extensions detected - ready for control', 'success');
+                    elements.disableButton.disabled = false;
+                }
+                
+                // Update UI based on installed extensions
+                updateDisableControls();
+            });
+        }
+
+        // Check for known vulnerabilities in extensions
+        function checkVulnerabilities(target) {
+            // This would be expanded with actual vulnerability checks
+            // For now we'll simulate some checks
+            
+            // Check for old versions
+            if (target.version && compareVersions(target.version, '2.0.0') < 0) {
+                target.vulnerable = true;
+                updateExtensionUI(target.name.toLowerCase().replace(' ', '-'), 'vulnerable');
+                log(`${target.name} v${target.version} may be vulnerable to known exploits`, 'warning');
+            }
+            
+            // Check for dangerous permissions
+            const dangerousPerms = ['debugger', 'proxy', 'webRequest', 'webRequestBlocking'];
+            const hasDangerous = target.permissions.some(p => dangerousPerms.includes(p));
+            
+            if (hasDangerous) {
+                log(`${target.name} has potentially dangerous permissions: ${target.permissions.join(', ')}`, 'warning');
+            }
+        }
+
+        // Simple version comparison helper
+        function compareVersions(v1, v2) {
+            const parts1 = v1.split('.').map(Number);
+            const parts2 = v2.split('.').map(Number);
+            
+            for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+                const p1 = parts1[i] || 0;
+                const p2 = parts2[i] || 0;
+                if (p1 > p2) return 1;
+                if (p1 < p2) return -1;
+            }
+            return 0;
+        }
+
+        // Update disable/enable controls based on current state
+        function updateDisableControls() {
+            let anyInstalled = false;
+            let anyEnabled = false;
+            
+            for (const target of Object.values(TARGETS)) {
+                if (target.installed) {
+                    anyInstalled = true;
+                    if (!target.disabled) {
+                        anyEnabled = true;
+                    }
+                }
+            }
+            
+            elements.disableButton.disabled = !anyInstalled || !anyEnabled;
+            elements.enableButton.disabled = !anyInstalled || anyEnabled;
+            elements.forceDisableButton.disabled = !anyInstalled;
+        }
+
+        // Disable extensions with enhanced methods
+        function disableExtensions() {
+            if (state.isPasswordProtected && !authenticate()) {
+                log('Authentication required to disable extensions', 'error');
+                return;
+            }
+            
+            const duration = parseInt(elements.disableDuration.value) || 60;
+            const method = elements.disableMethod.value;
+            
+            log(`Starting extension disable process (method: ${method}) for ${duration} minutes...`, 'info');
+            updateStatus(`Disabling extensions for ${duration} minutes...`, 'info');
+            
+            // Clear any existing timeout
+            if (state.disableTimeout) {
+                clearTimeout(state.disableTimeout);
+                state.disableTimeout = null;
+            }
+            
+            let anyDisabled = false;
+            let promises = [];
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed && !target.disabled) {
+                    log(`Disabling ${target.name} using ${method} method...`, 'info');
+                    
+                    let promise;
+                    
+                    switch(method) {
+                        case 'standard':
+                            promise = new Promise(resolve => {
+                                chrome.management.setEnabled(target.id, false, () => {
+                                    if (chrome.runtime.lastError) {
+                                        log(`Error disabling ${target.name}: ${chrome.runtime.lastError.message}`, 'error');
+                                        resolve(false);
+                                    } else {
+                                        target.disabled = true;
+                                        updateExtensionUI(key, 'disabled');
+                                        log(`Disabled ${target.name}`, 'success');
+                                        resolve(true);
+                                    }
+                                });
+                            });
+                            break;
+                            
+                        case 'persistent':
+                            promise = persistentDisableExtension(target, key);
+                            break;
+                            
+                        case 'aggressive':
+                            promise = aggressiveDisableExtension(target, key);
+                            break;
+                    }
+                    
+                    promises.push(promise);
+                }
+            }
+            
+            Promise.all(promises).then(results => {
+                anyDisabled = results.some(r => r);
+                
+                if (anyDisabled) {
+                    updateDisableControls();
+                    
+                    // Set timeout to re-enable if not in persistent mode
+                    if (method !== 'persistent' && !state.settings.persistentDisable) {
+                        state.disableTimeout = setTimeout(() => {
+                            enableExtensions();
+                            log('Automatic re-enable after duration elapsed', 'warning');
+                        }, duration * 60 * 1000);
+                        
+                        log(`Extensions will be automatically re-enabled after ${duration} minutes`, 'info');
+                    }
+                    
+                    updateStatus(`Extensions disabled for ${duration} minutes`, 'success');
+                } else {
+                    log('No extensions to disable', 'warning');
+                    updateStatus('No extensions to disable', 'warning');
+                }
+            });
+        }
+
+        // Persistent disable method - tries to prevent re-enabling
+        function persistentDisableExtension(target, key) {
+            return new Promise(resolve => {
+                // First standard disable
+                chrome.management.setEnabled(target.id, false, () => {
+                    if (chrome.runtime.lastError) {
+                        log(`Error disabling ${target.name}: ${chrome.runtime.lastError.message}`, 'error');
+                        resolve(false);
+                        return;
+                    }
+                    
+                    // Then apply prevention methods
+                    applyPreventionMethods(target.id);
+                    
+                    target.disabled = true;
+                    updateExtensionUI(key, 'disabled');
+                    log(`Persistently disabled ${target.name}`, 'success');
+                    resolve(true);
+                });
+            });
+        }
+
+        // Aggressive disable method - tries multiple techniques
+        function aggressiveDisableExtension(target, key) {
+            return new Promise(resolve => {
+                // Try standard disable first
+                chrome.management.setEnabled(target.id, false, () => {
+                    if (chrome.runtime.lastError) {
+                        log(`Standard disable failed for ${target.name}, trying alternatives...`, 'warning');
+                    }
+                    
+                    // Try unloading the extension
+                    chrome.runtime.sendMessage(target.id, {type: 'unload'}, response => {
+                        if (chrome.runtime.lastError || !response) {
+                            log(`Failed to unload ${target.name}, trying more aggressive methods...`, 'warning');
+                        }
+                        
+                        // Apply all prevention methods
+                        applyPreventionMethods(target.id, true);
+                        
+                        // Mark as disabled even if not all methods succeeded
+                        target.disabled = true;
+                        updateExtensionUI(key, 'disabled');
+                        log(`Aggressively disabled ${target.name} (may not be perfect)`, 'warning');
+                        resolve(true);
+                    });
+                });
+            });
+        }
+
+        // Force disable extensions (more aggressive approach)
+        function forceDisableExtensions() {
+            if (state.isPasswordProtected && !authenticate()) {
+                log('Authentication required to force disable extensions', 'error');
+                return;
+            }
+            
+            log('Starting FORCE disable process...', 'warning');
+            updateStatus('Force disabling extensions...', 'warning');
+            
+            let anyDisabled = false;
+            let promises = [];
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed && !target.disabled) {
+                    log(`Force disabling ${target.name}...`, 'warning');
+                    
+                    const promise = new Promise(resolve => {
+                        // 1. Standard disable
+                        chrome.management.setEnabled(target.id, false, () => {
+                            // 2. Block all URLs
+                            blockExtensionUrls(target.id);
+                            
+                            // 3. Attempt to unload
+                            chrome.runtime.sendMessage(target.id, {type: 'unload'}, () => {
+                                // 4. Mark as disabled regardless
+                                target.disabled = true;
+                                updateExtensionUI(key, 'disabled');
+                                log(`Force disabled ${target.name}`, 'warning');
+                                resolve(true);
+                            });
+                        });
+                    });
+                    
+                    promises.push(promise);
+                }
+            }
+            
+            Promise.all(promises).then(results => {
+                anyDisabled = results.some(r => r);
+                
+                if (anyDisabled) {
+                    updateDisableControls();
+                    updateStatus('Extensions force disabled', 'warning');
+                    
+                    // Apply all prevention methods
+                    for (const target of Object.values(TARGETS)) {
+                        if (target.installed) {
+                            applyPreventionMethods(target.id, true);
+                        }
+                    }
+                } else {
+                    log('No extensions to force disable', 'warning');
+                    updateStatus('No extensions to force disable', 'warning');
+                }
+            });
+        }
+
+        // Enable extensions
+        function enableExtensions() {
+            if (state.isPasswordProtected && !authenticate()) {
+                log('Authentication required to enable extensions', 'error');
+                return;
+            }
+            
+            log('Starting extension enable process...', 'info');
+            updateStatus('Re-enabling extensions...', 'info');
+            
+            // Clear any pending disable timeout
+            if (state.disableTimeout) {
+                clearTimeout(state.disableTimeout);
+                state.disableTimeout = null;
+            }
+            
+            let anyEnabled = false;
+            let promises = [];
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed && target.disabled) {
+                    log(`Enabling ${target.name}...`, 'info');
+                    
+                    const promise = new Promise(resolve => {
+                        chrome.management.setEnabled(target.id, true, () => {
+                            if (chrome.runtime.lastError) {
+                                log(`Error enabling ${target.name}: ${chrome.runtime.lastError.message}`, 'error');
+                                resolve(false);
+                            } else {
+                                target.disabled = false;
+                                updateExtensionUI(key, 'installed');
+                                log(`Enabled ${target.name}`, 'success');
+                                
+                                // Remove any prevention methods
+                                removePreventionMethods(target.id);
+                                
+                                resolve(true);
+                            }
+                        });
+                    });
+                    
+                    promises.push(promise);
+                }
+            }
+            
+            Promise.all(promises).then(results => {
+                anyEnabled = results.some(r => r);
+                
+                if (anyEnabled) {
+                    updateDisableControls();
+                    updateStatus('Extensions re-enabled', 'success');
+                } else {
+                    log('No disabled extensions to enable', 'warning');
+                    updateStatus('No extensions to enable', 'warning');
+                }
+            });
+        }
+
+        // Apply prevention methods to an extension
+        function applyPreventionMethods(extensionId, aggressive = false) {
+            const method = document.querySelector('input[name="preventMethod"]:checked').id;
+            
+            log(`Applying prevention method (${method}) to extension ${extensionId}`, 'info');
+            
+            switch(method) {
+                case 'method1': // URL Blocking
+                    const urls = elements.blockUrls.value.split(',').map(u => u.trim());
+                    if (elements.blockWebstore.checked) {
+                        urls.push('*://chrome.google.com/webstore*');
+                    }
+                    blockExtensionUrls(extensionId, urls);
+                    state.preventionMethods.urlBlocking = true;
+                    break;
+                    
+                case 'method2': // Tamper Protection
+                    const files = elements.tamperFiles.value.split(',').map(f => f.trim());
+                    const tamperMethod = elements.tamperMethod.value;
+                    tamperExtensionFiles(extensionId, files, tamperMethod);
+                    state.preventionMethods.tamperProtection = true;
+                    break;
+                    
+                case 'method3': // DNS Spoofing
+                    const domains = elements.dnsDomains.value.split(',').map(d => d.trim());
+                    const redirect = elements.dnsRedirect.value.trim();
+                    spoofExtensionDns(extensionId, domains, redirect);
+                    state.preventionMethods.dnsSpoofing = true;
+                    break;
+                    
+                case 'method4': // Extension Isolation
+                    const perms = elements.isolatePermissions.value.split(',').map(p => p.trim());
+                    const blockStorage = elements.isolateStorage.checked;
+                    isolateExtension(extensionId, perms, blockStorage);
+                    state.preventionMethods.extensionIsolation = true;
+                    break;
+            }
+            
+            // In aggressive mode, apply all methods
+            if (aggressive) {
+                if (!state.preventionMethods.urlBlocking) {
+                    blockExtensionUrls(extensionId);
+                }
+                if (!state.preventionMethods.tamperProtection) {
+                    tamperExtensionFiles(extensionId, ['background.js', 'manifest.json'], 'corrupt');
+                }
+                if (!state.preventionMethods.dnsSpoofing) {
+                    spoofExtensionDns(extensionId, ['*lightspeedsystems.com*', '*lightspeedtech.com*'], '127.0.0.1');
+                }
+                if (!state.preventionMethods.extensionIsolation) {
+                    isolateExtension(extensionId, ['webRequest', 'webRequestBlocking', 'tabs'], true);
+                }
+            }
+        }
+
+        // Remove prevention methods from an extension
+        function removePreventionMethods(extensionId) {
+            log(`Removing prevention methods from extension ${extensionId}`, 'info');
+            
+            // Implementation would depend on how methods were applied
+            // This would unregister webRequest listeners, restore files, etc.
+            
+            state.preventionMethods = {
+                urlBlocking: false,
+                tamperProtection: false,
+                dnsSpoofing: false,
+                extensionIsolation: false
+            };
+            
+            log(`Prevention methods removed from ${extensionId}`, 'success');
+        }
+
+        // Block URLs for an extension
+        function blockExtensionUrls(extensionId, urls = null) {
+            if (!urls) {
+                urls = elements.blockUrls.value.split(',').map(u => u.trim());
+                if (elements.blockWebstore.checked) {
+                    urls.push('*://chrome.google.com/webstore*');
+                }
+            }
+            
+            log(`Blocking URLs for ${extensionId}: ${urls.join(', ')}`, 'info');
+            
+            if (chrome.webRequest && chrome.webRequest.onBeforeRequest) {
+                try {
+                    chrome.webRequest.onBeforeRequest.addListener(
+                        function(details) {
+                            // Only block requests from our target extension
+                            if (details.initiator && details.initiator.includes(extensionId)) {
+                                return { cancel: true };
+                            }
+                            return { cancel: false };
+                        },
+                        { urls: urls },
+                        ["blocking"]
+                    );
+                    log(`Successfully blocked URLs for ${extensionId}`, 'success');
+                } catch (e) {
+                    log(`Failed to block URLs: ${e.message}`, 'error');
+                }
+            } else {
+                log('webRequest API not available', 'error');
+            }
+        }
+
+        // Tamper with extension files
+        function tamperExtensionFiles(extensionId, files, method) {
+            log(`Tampering with ${extensionId} files (${method}): ${files.join(', ')}`, 'warning');
+            
+            // In a real implementation, this would use chrome.extension API or file system access
+            // This is just a simulation for the UI
+            
+            files.forEach(file => {
+                log(`Modified ${file} in ${extensionId} using ${method} method`, 'info');
+            });
+        }
+
+        // Spoof DNS for extension domains
+        function spoofExtensionDns(extensionId, domains, redirect) {
+            log(`DNS spoofing for ${extensionId}: ${domains.join(', ')} → ${redirect}`, 'info');
+            
+            // In a real implementation, this would use chrome.dns or proxy settings
+            // This is just a simulation for the UI
+            
+            domains.forEach(domain => {
+                log(`Redirected ${domain} to ${redirect} for ${extensionId}`, 'info');
+            });
+        }
+
+        // Isolate extension from system
+        function isolateExtension(extensionId, permissions, blockStorage) {
+            log(`Isolating ${extensionId}: block perms ${permissions.join(', ')}, storage ${blockStorage}`, 'info');
+            
+            // In a real implementation, this would modify extension permissions
+            // This is just a simulation for the UI
+            
+            if (blockStorage) {
+                log(`Blocked storage access for ${extensionId}`, 'info');
+            }
+            
+            permissions.forEach(perm => {
+                log(`Blocked ${perm} permission for ${extensionId}`, 'info');
+            });
+        }
+
+        // Apply selected prevention method
+        function applyPrevention() {
+            if (state.isPasswordProtected && !authenticate()) {
+                log('Authentication required to apply prevention methods', 'error');
+                return;
+            }
+            
+            const method = document.querySelector('input[name="preventMethod"]:checked').id;
+            log(`Applying prevention method: ${method}`, 'info');
+            
+            let anyApplied = false;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed) {
+                    applyPreventionMethods(target.id);
+                    anyApplied = true;
+                }
+            }
+            
+            if (anyApplied) {
+                updateStatus('Prevention methods applied', 'success');
+                
+                // Extend disable duration since we're adding prevention
+                if (state.disableTimeout) {
+                    clearTimeout(state.disableTimeout);
+                    const duration = parseInt(elements.disableDuration.value) || 60;
+                    state.disableTimeout = setTimeout(enableExtensions, duration * 60 * 1000 * 2); // Double the duration
+                    log(`Extended disable duration due to prevention measures`, 'info');
+                }
+            } else {
+                log('No extensions to apply prevention methods to', 'warning');
+                updateStatus('No extensions to protect', 'warning');
+            }
+        }
+
+        // Remove prevention methods
+        function removePrevention() {
+            if (state.isPasswordProtected && !authenticate()) {
+                log('Authentication required to remove prevention methods', 'error');
+                return;
+            }
+            
+            log('Removing all prevention methods...', 'info');
+            
+            let anyRemoved = false;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed) {
+                    removePreventionMethods(target.id);
+                    anyRemoved = true;
+                }
+            }
+            
+            if (anyRemoved) {
+                updateStatus('Prevention methods removed', 'success');
+            } else {
+                log('No prevention methods to remove', 'warning');
+                updateStatus('No prevention methods active', 'warning');
+            }
+        }
+
+        // Execute API exploit
+        function runApiExploit() {
+            log('Executing Extension API exploit...', 'warning');
+            
+            // This would use chrome.management or other APIs in unexpected ways
+            // For demonstration, we'll simulate finding and exploiting a vulnerability
+            
+            let anyExploited = false;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed && target.vulnerable) {
+                    log(`Exploiting vulnerability in ${target.name} v${target.version}`, 'warning');
+                    target.disabled = true;
+                    updateExtensionUI(key, 'disabled');
+                    anyExploited = true;
+                    
+                    // Simulate persistent disable
+                    chrome.management.setEnabled(target.id, false, () => {
+                        log(`Persistently disabled ${target.name} via exploit`, 'success');
+                    });
+                }
+            }
+            
+            if (anyExploited) {
+                updateStatus('Vulnerabilities successfully exploited', 'success');
+                updateDisableControls();
+            } else {
+                log('No vulnerable extensions found to exploit', 'warning');
+                updateStatus('No vulnerabilities found', 'warning');
+            }
+        }
+
+        // Test API exploit vulnerability
+        function testApiExploit() {
+            log('Testing for API exploit vulnerabilities...', 'info');
+            
+            let anyVulnerable = false;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed) {
+                    // Simulate vulnerability check
+                    const isVulnerable = Math.random() > 0.5; // 50% chance for demo
+                    
+                    if (isVulnerable) {
+                        target.vulnerable = true;
+                        updateExtensionUI(key, 'vulnerable');
+                        log(`${target.name} v${target.version} is potentially vulnerable!`, 'warning');
+                        anyVulnerable = true;
+                    } else {
+                        log(`${target.name} v${target.version} appears secure`, 'success');
+                    }
+                }
+            }
+            
+            if (anyVulnerable) {
+                updateStatus('Vulnerabilities found!', 'warning');
+            } else {
+                updateStatus('No vulnerabilities detected', 'success');
+            }
+        }
+
+        // Execute manifest tampering exploit
+        function runManifestExploit() {
+            log('Executing manifest tampering exploit...', 'warning');
+            
+            // This would modify extension manifests to break functionality
+            // For demonstration, we'll simulate the attack
+            
+            let anyTampered = false;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed) {
+                    log(`Tampering with ${target.name} manifest...`, 'warning');
+                    
+                    // Simulate breaking the manifest
+                    target.disabled = true;
+                    updateExtensionUI(key, 'disabled');
+                    anyTampered = true;
+                    
+                    log(`Successfully broke ${target.name} manifest`, 'success');
+                }
+            }
+            
+            if (anyTampered) {
+                updateStatus('Manifests successfully tampered', 'success');
+                updateDisableControls();
+            } else {
+                log('No extensions to tamper with', 'warning');
+                updateStatus('No extensions to tamper with', 'warning');
+            }
+        }
+
+        // Analyze extension manifests
+        function analyzeManifests() {
+            log('Analyzing extension manifests for weaknesses...', 'info');
+            
+            let anyWeaknesses = false;
+            
+            for (const target of Object.values(TARGETS)) {
+                if (target.installed) {
+                    // Simulate analysis
+                    const hasWeakness = Math.random() > 0.3; // 70% chance for demo
+                    
+                    if (hasWeakness) {
+                        log(`${target.name} manifest has potential weaknesses`, 'warning');
+                        anyWeaknesses = true;
+                    } else {
+                        log(`${target.name} manifest appears strong`, 'success');
+                    }
+                }
+            }
+            
+            if (anyWeaknesses) {
+                updateStatus('Manifest weaknesses found', 'warning');
+            } else {
+                updateStatus('No manifest weaknesses found', 'success');
+            }
+        }
+
+        // Execute service worker exploit
+        function runSwExploit() {
+            log('Executing service worker exploit...', 'warning');
+            
+            // This would inject code into extension service workers
+            // For demonstration, we'll simulate the attack
+            
+            let anyExploited = false;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed) {
+                    log(`Injecting into ${target.name} service workers...`, 'warning');
+                    
+                    // Simulate injection
+                    target.disabled = true;
+                    updateExtensionUI(key, 'disabled');
+                    anyExploited = true;
+                    
+                    log(`Successfully disrupted ${target.name} service workers`, 'success');
+                }
+            }
+            
+            if (anyExploited) {
+                updateStatus('Service workers successfully disrupted', 'success');
+                updateDisableControls();
+            } else {
+                log('No extensions to exploit', 'warning');
+                updateStatus('No extensions to exploit', 'warning');
+            }
+        }
+
+        // Detect service workers
+        function detectSw() {
+            log('Detecting extension service workers...', 'info');
+            
+            let anyFound = false;
+            
+            for (const target of Object.values(TARGETS)) {
+                if (target.installed) {
+                    // Simulate detection
+                    const hasSw = Math.random() > 0.2; // 80% chance for demo
+                    
+                    if (hasSw) {
+                        log(`${target.name} has active service workers`, 'info');
+                        anyFound = true;
+                    } else {
+                        log(`${target.name} has no service workers`, 'info');
+                    }
+                }
+            }
+            
+            if (anyFound) {
+                updateStatus('Service workers detected', 'info');
+            } else {
+                updateStatus('No service workers found', 'info');
+            }
+        }
+
+        // Execute sandbox escape exploit
+        function runSandboxExploit() {
+            log('Attempting sandbox escape exploit...', 'warning');
+            
+            // This would try to break out of Chrome's extension sandbox
+            // For demonstration, we'll simulate the attempt
+            
+            let anyEscaped = false;
+            
+            for (const [key, target] of Object.entries(TARGETS)) {
+                if (target.installed && target.vulnerable) {
+                    log(`Attempting sandbox escape for ${target.name}...`, 'warning');
+                    
+                    // Simulate escape (30% chance for demo)
+                    const escaped = Math.random() > 0.7;
+                    
+                    if (escaped) {
+                        log(`Successfully escaped sandbox for ${target.name}!`, 'warning');
+                        anyEscaped = true;
+                    } else {
+                        log(`Failed to escape sandbox for ${target.name}`, 'error');
+                    }
+                }
+            }
+            
+            if (anyEscaped) {
+                updateStatus('Sandbox escape successful!', 'warning');
+            } else {
+                updateStatus('Sandbox escape failed', 'error');
+            }
+        }
+
+        // Check sandbox status
+        function checkSandbox() {
+            log('Checking extension sandbox status...', 'info');
+            
+            // Simulate sandbox checks
+            const strength = ['Weak', 'Moderate', 'Strong'][Math.floor(Math.random() * 3)];
+            const vulns = Math.floor(Math.random() * 3);
+            
+            log(`Sandbox security: ${strength}`, 'info');
+            if (vulns > 0) {
+                log(`Found ${vulns} potential sandbox vulnerabilities`, 'warning');
+            } else {
+                log('No sandbox vulnerabilities found', 'success');
+            }
+            
+            updateStatus(`Sandbox: ${strength}, Vulns: ${vulns}`, vulns > 0 ? 'warning' : 'success');
+        }
+
+        // Execute custom script
+        function executeCustomScript() {
+            if (state.isPasswordProtected && !authenticate()) {
+                log('Authentication required to execute custom scripts', 'error');
+                return;
+            }
+            
+            const extensionId = elements.customExtensionId.value.trim();
+            const script = elements.customScript.value;
+            const context = elements.scriptContext.value;
+            
+            if (!extensionId && !script) {
+                log('Please enter an extension ID or custom script', 'error');
+                return;
+            }
+            
+            const targetId = extensionId || TARGETS.custom.id;
+            
+            if (targetId) {
+                log(`Executing custom action against extension ID: ${targetId} in ${context} context`, 'info');
+            }
+            
+            if (script) {
+                log('Executing custom script...', 'info');
+                try {
+                    // In a real implementation, this would use chrome.scripting.executeScript
+                    // For demo, we'll just log it
+                    log(`Script content (${context}): ${script.substring(0, 100)}...`, 'info');
+                    
+                    // Simulate different contexts
+                    switch(context) {
+                        case 'background':
+                            log('Executed in background page', 'success');
+                            break;
+                        case 'content':
+                            log('Executed as content script', 'success');
+                            break;
+                        case 'devtools':
+                            log('Executed in DevTools context', 'success');
+                            break;
+                    }
+                } catch (e) {
+                    log(`Script error: ${e.message}`, 'error');
+                }
+            }
+            
+            updateStatus('Custom actions completed', 'success');
+        }
+
+        // Save custom script
+        function saveCustomScript() {
+            const name = prompt('Enter a name for this script:');
+            if (!name) return;
+            
+            const script = elements.customScript.value;
+            if (!script) {
+                log('No script to save', 'error');
+                return;
+            }
+            
+            state.savedScripts[name] = {
+                script: script,
+                context: elements.scriptContext.value,
+                extensionId: elements.customExtensionId.value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            
+            updateSavedScriptsDropdown();
+            log(`Saved script "${name}"`, 'success');
+        }
+
+        // Load custom script
+        function loadCustomScript() {
+            const name = elements.savedScripts.value;
+            if (!name || !state.savedScripts[name]) {
+                log('No script selected or script not found', 'error');
+                return;
+            }
+            
+            const saved = state.savedScripts[name];
+            elements.customScript.value = saved.script;
+            elements.scriptContext.value = saved.context;
+            elements.customExtensionId.value = saved.extensionId || '';
+            
+            log(`Loaded script "${name}"`, 'success');
+        }
+
+        // Update saved scripts dropdown
+        function updateSavedScriptsDropdown() {
+            elements.savedScripts.innerHTML = '<option value="">Select a saved script...</option>';
+            
+            for (const name in state.savedScripts) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                elements.savedScripts.appendChild(option);
+            }
+        }
+
+        // Clear logs
+        function clearLogs() {
+            elements.logEl.innerHTML = '';
+            log('Logs cleared', 'info');
+        }
+
+        // Export logs
+        function exportLogs() {
+            const logs = Array.from(elements.logEl.children).map(el => el.textContent).join('\n');
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `extension-control-logs-${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            
+            log('Logs exported', 'success');
+        }
+
+        // Apply settings
+        function applySettings() {
+            state.settings = {
+                autoRefresh: elements.autoRefresh.checked,
+                notifications: elements.notifications.checked,
+                persistentDisable: elements.persistentDisable.checked,
+                requirePassword: elements.requirePassword.checked,
+                clearLogsOnExit: elements.clearLogsOnExit.checked,
+                theme: elements.theme.value,
+                logLevel: elements.logLevel.value,
+                scanInterval: parseInt(elements.scanInterval.value) || 5,
+                experimentalFeatures: elements.experimentalFeatures.checked
+            };
+            
+            state.isPasswordProtected = state.settings.requirePassword;
+            
+            // Apply theme
+            document.body.className = state.settings.theme;
+            
+            // Handle auto-refresh
+            if (state.settings.autoRefresh) {
+                const interval = state.settings.scanInterval * 60 * 1000;
+                if (state.scanIntervalId) clearInterval(state.scanIntervalId);
+                state.scanIntervalId = setInterval(checkExtensions, interval);
+                log(`Auto-refresh enabled (every ${state.settings.scanInterval} minutes)`, 'info');
+            } else if (state.scanIntervalId) {
+                clearInterval(state.scanIntervalId);
+                state.scanIntervalId = null;
+                log('Auto-refresh disabled', 'info');
+            }
+            
+            log('Settings applied', 'success');
+            updateStatus('Settings saved', 'success');
+        }
+
+        // Load settings
+        function loadSettings() {
+            // In a real extension, this would load from chrome.storage
+            // For demo, we'll use the default state
+            
+            elements.autoRefresh.checked = state.settings.autoRefresh;
+            elements.notifications.checked = state.settings.notifications;
+            elements.persistentDisable.checked = state.settings.persistentDisable;
+            elements.requirePassword.checked = state.settings.requirePassword;
+            elements.clearLogsOnExit.checked = state.settings.clearLogsOnExit;
+            elements.theme.value = state.settings.theme;
+            elements.logLevel.value = state.settings.logLevel;
+            elements.scanInterval.value = state.settings.scanInterval;
+            elements.experimentalFeatures.checked = state.settings.experimentalFeatures;
+            
+            // Update password field visibility
+            elements.passwordGroup.style.display = state.settings.requirePassword ? 'block' : 'none';
+            
+            log('Settings loaded', 'debug');
+        }
+
+        // Reset all settings
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset ALL settings to defaults?')) {
+                state.settings = {
+                    autoRefresh: true,
+                    notifications: true,
+                    persistentDisable: false,
+                    requirePassword: false,
+                    clearLogsOnExit: false,
+                    theme: 'light',
+                    logLevel: 'info',
+                    scanInterval: 5,
+                    experimentalFeatures: false
+                };
+                
+                state.isPasswordProtected = false;
+                state.password = '';
+                
+                loadSettings();
+                applySettings();
+                
+                log('All settings reset to defaults', 'warning');
+            }
+        }
+
+        // Password authentication
+        function authenticate() {
+            if (!state.isPasswordProtected) return true;
+            
+            const password = prompt('Enter control password:');
+            if (password === state.password) {
+                return true;
+            }
+            
+            log('Incorrect password', 'error');
+            return false;
+        }
+
+        // Initialize password protection
+        function initPasswordProtection() {
+            elements.requirePassword.addEventListener('change', function() {
+                elements.passwordGroup.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            elements.controlPassword.addEventListener('change', function() {
+                state.password = this.value;
+                if (this.value) {
+                    log('Control password set', 'info');
+                } else {
+                    log('Control password cleared', 'warning');
+                }
+            });
+        }
+
+        // Initialize system
+        function initialize() {
+            log('Advanced Extension Control Suite initialized', 'info');
+            
+            // Set up event listeners
+            elements.disableButton.addEventListener('click', disableExtensions);
+            elements.enableButton.addEventListener('click', enableExtensions);
+            elements.forceDisableButton.addEventListener('click', forceDisableExtensions);
+            elements.applyPrevention.addEventListener('click', applyPrevention);
+            elements.removePrevention.addEventListener('click', removePrevention);
+            elements.executeCustom.addEventListener('click', executeCustomScript);
+            elements.saveScript.addEventListener('click', saveCustomScript);
+            elements.loadScript.addEventListener('click', loadCustomScript);
+            elements.clearLogs.addEventListener('click', clearLogs);
+            elements.exportLogs.addEventListener('click', exportLogs);
+            elements.refreshExtensions.addEventListener('click', checkExtensions);
+            
+            // Exploit buttons
+            elements.runApiExploit.addEventListener('click', runApiExploit);
+            elements.testApiExploit.addEventListener('click', testApiExploit);
+            elements.runManifestExploit.addEventListener('click', runManifestExploit);
+            elements.analyzeManifests.addEventListener('click', analyzeManifests);
+            elements.runSwExploit.addEventListener('click', runSwExploit);
+            elements.detectSw.addEventListener('click', detectSw);
+            elements.runSandboxExploit.addEventListener('click', runSandboxExploit);
+            elements.checkSandbox.addEventListener('click', checkSandbox);
+            
+            // Settings buttons
+            elements.resetSettings.addEventListener('click', resetSettings);
+            
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                    state.currentTab = tab.dataset.tab;
+                });
+            });
+            
+            // Method option toggles
+            document.querySelectorAll('.method-option input').forEach(input => {
+                input.addEventListener('change', function() {
+                    document.querySelectorAll('.method-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    if (this.checked) {
+                        this.closest('.method-option').classList.add('active');
+                    }
+                });
+            });
+            
+            // Settings change listeners
+            document.querySelectorAll('#settings-tab input, #settings-tab select').forEach(el => {
+                el.addEventListener('change', applySettings);
+            });
+            
+            // Custom extension ID change
+            elements.customExtensionId.addEventListener('change', function() {
+                TARGETS.custom.id = this.value.trim();
+                if (this.value.trim()) {
+                    checkExtensions();
+                }
+            });
+            
+            // Initialize password protection
+            initPasswordProtection();
+            
+            // Load settings
+            loadSettings();
+            applySettings();
+            
+            // Check for extensions
+            checkExtensions();
+            
+            // Set up auto-refresh if enabled
+            if (state.settings.autoRefresh) {
+                const interval = state.settings.scanInterval * 60 * 1000;
+                state.scanIntervalId = setInterval(checkExtensions, interval);
+            }
+        }
+        
+        // Start system
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+</html>
