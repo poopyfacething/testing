@@ -3,86 +3,192 @@
 <head>
     <title>Extension Manager</title>
     <style>
+        :root {
+            --primary: #4285f4;
+            --primary-dark: #3367d6;
+            --secondary: #34a853;
+            --danger: #ea4335;
+            --warning: #fbbc05;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #5f6368;
+            --text: #202124;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5f5;
-            color: #333;
+            color: var(--text);
             margin: 0;
             padding: 20px;
-            text-align: center;
+            line-height: 1.6;
         }
+        
         #container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background-color: #fff;
+            background-color: white;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--medium-gray);
         }
+        
+        h1, h2, h3 {
+            color: var(--text);
+            font-weight: 500;
+        }
+        
         h1 {
-            color: #2c3e50;
             margin-bottom: 25px;
-            font-weight: 600;
             font-size: 28px;
+            border-bottom: 1px solid var(--medium-gray);
+            padding-bottom: 15px;
         }
+        
+        h2 {
+            font-size: 22px;
+            margin-top: 30px;
+            color: var(--primary);
+        }
+        
+        h3 {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        
         button {
-            background: linear-gradient(to bottom, #3498db, #2980b9);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 28px;
-            font-size: 16px;
-            margin: 10px;
+            padding: 12px 24px;
+            font-size: 15px;
+            margin: 8px;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 4px;
             font-weight: 500;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
+            min-width: 120px;
         }
+        
         button:hover {
-            background: linear-gradient(to bottom, #2980b9, #2472a4);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            background: var(--primary-dark);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+        
         button:disabled {
-            background: #bdc3c7;
+            background: var(--medium-gray);
             cursor: not-allowed;
-            box-shadow: none;
+            color: var(--dark-gray);
         }
-        #status {
-            margin: 25px 0;
-            padding: 15px;
-            background: #ecf0f1;
+        
+        button.danger {
+            background: var(--danger);
+        }
+        
+        button.danger:hover {
+            background: #d33426;
+        }
+        
+        button.success {
+            background: var(--secondary);
+        }
+        
+        button.success:hover {
+            background: #2d9245;
+        }
+        
+        .panel {
+            background: white;
             border-radius: 6px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            border: 1px solid #d6dbdf;
-            font-size: 14px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid var(--medium-gray);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        .panel-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .panel-body {
+            margin-top: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+        
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .status {
+            padding: 12px;
+            background: var(--light-gray);
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            border-left: 4px solid var(--primary);
+            margin: 15px 0;
+        }
+        
         #log {
-            height: 200px;
-            overflow-y: scroll;
+            height: 250px;
+            overflow-y: auto;
             background: #f8f9fa;
             padding: 15px;
             text-align: left;
             font-family: 'Consolas', 'Courier New', monospace;
-            border: 1px solid #e0e0e0;
-            margin-top: 25px;
-            border-radius: 6px;
+            border: 1px solid var(--medium-gray);
+            margin-top: 20px;
+            border-radius: 4px;
             font-size: 13px;
         }
+        
         .target {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 15px;
-            margin: 12px 0;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
+            margin: 10px 0;
+            background: var(--light-gray);
+            border-radius: 4px;
+            border: 1px solid var(--medium-gray);
         }
+        
         .target-name {
             font-weight: 500;
-            color: #2c3e50;
+            color: var(--text);
         }
+        
         .target-status {
             padding: 6px 12px;
             border-radius: 4px;
@@ -90,121 +196,184 @@
             font-size: 13px;
             color: white;
         }
+        
         .detected {
-            background: #27ae60;
+            background: var(--secondary);
         }
+        
         .missing {
-            background: #7f8c8d;
+            background: var(--dark-gray);
         }
+        
         .attacking {
-            background: #e74c3c;
+            background: var(--danger);
             animation: pulseRed 0.8s infinite;
         }
+        
         @keyframes pulseRed {
             0% { opacity: 1; }
             50% { opacity: 0.7; }
             100% { opacity: 1; }
         }
+        
         .progress-container {
             height: 8px;
-            background: #ecf0f1;
+            background: var(--light-gray);
             border-radius: 4px;
-            margin: 25px 0;
+            margin: 20px 0;
             overflow: hidden;
         }
+        
         .progress-bar {
             height: 100%;
-            background: linear-gradient(to right, #3498db, #2980b9);
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
             width: 0%;
             transition: width 0.3s ease;
         }
+        
         .log-entry {
             margin-bottom: 5px;
             padding-bottom: 5px;
             border-bottom: 1px solid #eee;
         }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .info {
+            color: var(--dark-gray);
+        }
+        
         .error {
-            color: #e74c3c;
+            color: var(--danger);
         }
+        
         .success {
-            color: #27ae60;
+            color: var(--secondary);
         }
-        .instructions {
-            background: #fffde7;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #ffe082;
-            margin: 20px 0;
-            text-align: left;
+        
+        .warning {
+            color: var(--warning);
         }
-        .instructions h3 {
-            margin-top: 0;
-            color: #ff8f00;
+        
+        .command {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            margin: 10px 0;
+            border-left: 3px solid var(--primary);
         }
-        .instructions ol {
-            padding-left: 20px;
+        
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .instructions li {
-            margin-bottom: 8px;
+        
+        .flex-row input {
+            flex: 1;
         }
-        .spam-section {
-            margin: 20px 0;
-            padding: 15px;
-            background: #e3f2fd;
-            border-radius: 6px;
-            border: 1px solid #bbdefb;
-        }
-        .spam-section h3 {
-            margin-top: 0;
-            color: #1565c0;
+        
+        .flex-row button {
+            margin: 0;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>Extension Management Console</h1>
+        <h1>Extension Management Tool</h1>
         
-        <div class="instructions">
-            <h3>How to Access Extension Manager:</h3>
-            <ol>
-                <li>Open Chrome and type <strong>chrome://extensions</strong> in the address bar</li>
-                <li>Press Enter to navigate to the extensions page</li>
-                <li>Find the extension you want to modify in the list</li>
-                <li>Click on "Details" to view extension settings</li>
-                <li>Scroll down to find "Site access" settings</li>
-                <li>Click on the dropdown to change access permissions</li>
-            </ol>
-        </div>
-        
-        <div class="spam-section">
-            <h3>Allow All URLs Spammer</h3>
-            <p>Click the button below to simulate rapid clicking of the "Allow all URLs" button:</p>
-            <button id="spamButton">Start Spamming Allow All URLs</button>
-            <button id="stopSpamButton" disabled>Stop Spamming</button>
-            <div id="spamStatus">Ready to spam...</div>
-        </div>
-        
-        <div id="targets">
-            <div class="target" id="target-filter">
-                <span class="target-name">Lightspeed Filter</span>
-                <span class="target-status missing" id="status-filter">SCANNING...</span>
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">Extension Manager Instructions</div>
             </div>
-            <div class="target" id="target-classroom">
-                <span class="target-name">Lightspeed Classroom</span>
-                <span class="target-status missing" id="status-classroom">SCANNING...</span>
+            <div class="panel-body">
+                <p>Follow these steps to access extension permissions:</p>
+                <ol>
+                    <li>Open Chrome and navigate to <code>chrome://extensions</code></li>
+                    <li>Enable "Developer mode" in the top right corner</li>
+                    <li>Find your extension in the list and click "Details"</li>
+                    <li>Scroll down to "Site access" permissions</li>
+                    <li>Select "On all sites" to allow full access</li>
+                </ol>
             </div>
         </div>
         
-        <div class="progress-container">
-            <div class="progress-bar" id="attackProgress"></div>
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">Permission Automation</div>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="clickCount">Number of Clicks to Simulate:</label>
+                    <div class="flex-row">
+                        <input type="number" id="clickCount" min="1" max="1000" value="50">
+                        <button id="spamButton" class="success">Start Automation</button>
+                        <button id="stopSpamButton" class="danger" disabled>Stop</button>
+                    </div>
+                </div>
+                <div class="status" id="spamStatus">Ready to simulate permission changes</div>
+                <p class="info">Note: This simulates rapid permission changes to bypass rate limits.</p>
+            </div>
         </div>
         
-        <div id="status">Initializing system components...</div>
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">Extension Control</div>
+            </div>
+            <div class="panel-body">
+                <div id="targets">
+                    <div class="target" id="target-filter">
+                        <span class="target-name">Lightspeed Filter</span>
+                        <span class="target-status missing" id="status-filter">SCANNING...</span>
+                    </div>
+                    <div class="target" id="target-classroom">
+                        <span class="target-name">Lightspeed Classroom</span>
+                        <span class="target-status missing" id="status-classroom">SCANNING...</span>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="attackProgress"></div>
+                </div>
+                
+                <div class="flex-row" style="justify-content: center;">
+                    <button id="nukeButton" disabled>Disable Extensions</button>
+                    <button id="stopButton" disabled>Cancel</button>
+                </div>
+                
+                <div class="status" id="status">Initializing system components...</div>
+            </div>
+        </div>
         
-        <button id="nukeButton" disabled>Disable Extensions</button>
-        <button id="stopButton" disabled>Cancel Operation</button>
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">System Log</div>
+            </div>
+            <div class="panel-body">
+                <div id="log"></div>
+            </div>
+        </div>
         
-        <div id="log"></div>
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">Command Reference</div>
+            </div>
+            <div class="panel-body">
+                <h3>Common Commands</h3>
+                <div class="command">chrome://extensions</div>
+                <p>Access the extensions management page</p>
+                
+                <div class="command">chrome://flags</div>
+                <p>Access experimental browser features</p>
+                
+                <h3>Developer Tools</h3>
+                <div class="command">Ctrl+Shift+I (Windows/Linux)<br>Cmd+Opt+I (Mac)</div>
+                <p>Open Developer Tools</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -215,14 +384,14 @@
                 name: 'Lightspeed Filter',
                 detected: false,
                 attacking: false,
-                iconPath: 'icons/icon128.png' // Common path to extension icon
+                iconPath: 'icons/icon128.png'
             },
             classroom: {
                 id: 'kkbmdgjggcdajckdlbpnjdonpchpaiea',
                 name: 'Lightspeed Classroom',
                 detected: false,
                 attacking: false,
-                iconPath: 'icons/icon128.png' // Common path to extension icon
+                iconPath: 'icons/icon128.png'
             }
         };
 
@@ -233,11 +402,14 @@
         let spamInterval;
         let attackCycle = 0;
         const MAX_CYCLES = 30;
+        
+        // UI Elements
         const nukeButton = document.getElementById('nukeButton');
         const stopButton = document.getElementById('stopButton');
         const spamButton = document.getElementById('spamButton');
         const stopSpamButton = document.getElementById('stopSpamButton');
         const spamStatus = document.getElementById('spamStatus');
+        const clickCountInput = document.getElementById('clickCount');
         const statusEl = document.getElementById('status');
         const logEl = document.getElementById('log');
         const progressBar = document.getElementById('attackProgress');
@@ -246,14 +418,8 @@
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
             const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            
-            let color = '#7f8c8d'; // default gray
-            if (type === 'error') color = '#e74c3c';
-            if (type === 'success') color = '#27ae60';
-            if (type === 'warning') color = '#f39c12';
-            
-            entry.innerHTML = `<span style="color:${color}">[${timestamp}] ${message}</span>`;
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${timestamp}] ${message}`;
             logEl.appendChild(entry);
             logEl.scrollTop = logEl.scrollHeight;
         }
@@ -263,7 +429,7 @@
             statusEl.textContent = message;
         }
 
-        // Improved extension detection using multiple methods
+        // Improved extension detection
         async function checkExtension(target) {
             // Method 1: Try fetching the icon
             try {
@@ -299,35 +465,7 @@
                 log(`${target.name}: Manifest detection failed - ${e.message}`, 'warning');
             }
             
-            // Method 3: Try creating an iframe
-            try {
-                return await new Promise((resolve) => {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = `chrome-extension://${target.id}/_generated_background_page.html`;
-                    iframe.style.display = 'none';
-                    
-                    iframe.onload = () => {
-                        iframe.remove();
-                        log(`${target.name}: Detected via iframe`, 'success');
-                        resolve(true);
-                    };
-                    
-                    iframe.onerror = () => {
-                        iframe.remove();
-                        resolve(false);
-                    };
-                    
-                    document.body.appendChild(iframe);
-                    
-                    setTimeout(() => {
-                        iframe.remove();
-                        resolve(false);
-                    }, 1000);
-                });
-            } catch (e) {
-                log(`${target.name}: Iframe detection failed - ${e.message}`, 'warning');
-                return false;
-            }
+            return false;
         }
 
         // Detect all extensions
@@ -372,7 +510,7 @@
             TARGETS[targetKey].detected = (status === 'detected');
         }
 
-        // Disable an extension using multiple methods
+        // Disable an extension
         async function disableExtension(target) {
             let success = false;
             
@@ -389,39 +527,6 @@
                 success = true;
             } catch (e) {
                 log(`${target.name}: Resource flood failed - ${e.message}`, 'error');
-            }
-            
-            // Method 2: Iframe flood
-            try {
-                const iframes = [];
-                for (let i = 0; i < 10; i++) {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = `chrome-extension://${target.id}/_generated_background_page.html`;
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-                    iframes.push(iframe);
-                }
-                
-                setTimeout(() => {
-                    iframes.forEach(iframe => iframe.remove());
-                }, 500);
-                
-                success = true;
-            } catch (e) {
-                log(`${target.name}: Iframe flood failed - ${e.message}`, 'error');
-            }
-            
-            // Method 3: Image flood
-            try {
-                const images = [];
-                for (let i = 0; i < 15; i++) {
-                    const img = new Image();
-                    img.src = `chrome-extension://${target.id}/${target.iconPath}?${Date.now()}`;
-                    images.push(img);
-                }
-                success = true;
-            } catch (e) {
-                log(`${target.name}: Image flood failed - ${e.message}`, 'error');
             }
             
             return success;
@@ -514,26 +619,39 @@
         function startSpamming() {
             if (isSpamming) return;
             
+            const clickCount = parseInt(clickCountInput.value) || 50;
+            if (clickCount < 1 || clickCount > 1000) {
+                spamStatus.textContent = 'Please enter a number between 1 and 1000';
+                return;
+            }
+            
             isSpamming = true;
             spamButton.disabled = true;
             stopSpamButton.disabled = false;
-            spamStatus.textContent = 'Spamming in progress...';
-            log('Starting "Allow all URLs" spam sequence', 'success');
+            spamStatus.textContent = 'Starting automation sequence...';
+            log(`Starting permission automation (${clickCount} clicks)`, 'success');
             
-            let clickCount = 0;
-            const maxClicks = 100;
+            let clickCountDone = 0;
+            const clicksPerBatch = 5;
+            const delayBetweenBatches = 100;
             
-            // Simulate rapid clicking
+            // Simulate rapid clicking in batches
             spamInterval = setInterval(() => {
-                clickCount++;
-                spamStatus.textContent = `Spamming... (${clickCount} clicks simulated)`;
-                log(`Simulated click #${clickCount} on "Allow all URLs" button`);
+                const clicksThisBatch = Math.min(clicksPerBatch, clickCount - clickCountDone);
                 
-                if (clickCount >= maxClicks) {
-                    stopSpamming();
-                    spamStatus.textContent = `Completed ${maxClicks} simulated clicks!`;
+                for (let i = 0; i < clicksThisBatch; i++) {
+                    clickCountDone++;
+                    log(`Simulated permission change #${clickCountDone}`);
                 }
-            }, 50); // 50ms = 20 clicks per second
+                
+                spamStatus.textContent = `Automation in progress: ${clickCountDone}/${clickCount} (${Math.round((clickCountDone/clickCount)*100)}%)`;
+                
+                if (clickCountDone >= clickCount) {
+                    stopSpamming();
+                    spamStatus.textContent = `Completed ${clickCount} simulated permission changes`;
+                    log('Automation sequence completed successfully', 'success');
+                }
+            }, delayBetweenBatches);
         }
 
         // Stop spamming
@@ -542,12 +660,12 @@
             isSpamming = false;
             spamButton.disabled = false;
             stopSpamButton.disabled = true;
-            log('Stopped "Allow all URLs" spam sequence', 'warning');
+            log('Stopped permission automation sequence', 'warning');
         }
 
         // Initialize system
         async function initialize() {
-            log('Initializing extension management console...');
+            log('Initializing extension management console...', 'info');
             updateStatus('Scanning for target extensions...');
             
             // Initial detection
@@ -559,7 +677,7 @@
             // Add manual refresh button functionality
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && e.key === 'r') {
-                    log('Manual refresh triggered');
+                    log('Manual refresh triggered', 'info');
                     detectExtensions();
                 }
             });
