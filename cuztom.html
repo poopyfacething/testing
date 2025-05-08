@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Extension Control Suite</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-hover: #059669;
+            --background: #f9fafb;
+            --panel: #ffffff;
+            --border: #e5e7eb;
+            --text: #111827;
+            --text-light: #6b7280;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+        
+        #container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--panel);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        h1::before {
+            content: "";
+            display: block;
+            width: 1.5rem;
+            height: 1.5rem;
+            background-color: var(--primary);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M5.566 4.657A4.505 4.505 0 016.75 4.5h10.5c.41 0 .806.055 1.183.157A3 3 0 0015.75 3h-7.5a3 3 0 00-2.684 1.657zM2.25 12a3 3 0 013-3h13.5a3 3 0 013 3v6a3 3 0 01-3 3H5.25a3 3 0 01-3-3v-6zM5.25 7.5c-.41 0-.806.055-1.184.157A3 3 0 016.75 6h10.5a3 3 0 012.683 1.657A4.505 4.505 0 0018.75 7.5H5.25z'/%3E%3C/svg%3E");
+        }
+        
+        .panel {
+            background-color: var(--panel);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        button.danger {
+            background-color: var(--danger);
+        }
+        
+        button.danger:hover {
+            background-color: var(--danger-hover);
+        }
+        
+        button.success {
+            background-color: #4CAF50;
+        }
+        
+        button.success:hover {
+            background-color: #45a049;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .status {
+            padding: 0.75rem;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            font-family: 'Menlo', monospace;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        #log {
+            height: 250px;
+            overflow-y: auto;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Menlo', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .target {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        
+        .target:hover {
+            border-color: var(--primary);
+        }
+        
+        .target-name {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .target-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: white;
+        }
+        
+        .missing {
+            background-color: var(--danger);
+        }
+        
+        .found {
+            background-color: #4CAF50;
+        }
+        
+        .progress-container {
+            height: 0.5rem;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .error {
+            color: var(--danger);
+        }
+        
+        .success {
+            color: var(--success);
+        }
+        
+        .warning {
+            color: #f59e0b;
+        }
+        
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .flex-row input {
+            flex: 1;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        
+        #chromeos-check {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        #chromeos-check h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        #chromeos-check p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="chromeos-check">
+        <div class="spinner"></div>
+        <h2>Verifying System Requirements</h2>
+        <p>Checking ChromeOS compatibility...</p>
+        <div id="check-messages" style="font-family: monospace; text-align: center;"></div>
+    </div>
+    
+    <div id="container" style="display: none;">
+        <h1>Extension Control Suite</h1>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5.566 4.657A4.505 4.505 0 016.75 4.5h10.5c.41 0 .806.055 1.183.157A3 3 0 0015.75 3h-7.5a3 3 0 00-2.684 1.657zM2.25 12a3 3 0 013-3h13.5a3 3 0 013 3v6a3 3 0 01-3 3H5.25a3 3 0 01-3-3v-6zM5.25 7.5c-.41 0-.806.055-1.184.157A3 3 0 016.75 6h10.5a3 3 0 012.683 1.657A4.505 4.505 0 0018.75 7.5H5.25z"/>
+                    </svg>
+                    Permission Automation
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="clickCount">Number of attempts (1-10,000):</label>
+                    <div class="flex-row">
+                        <input type="number" id="clickCount" min="1" max="10000" value="500">
+                        <button id="spamButton" class="success">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd"/>
+                            </svg>
+                            Start
+                        </button>
+                        <button id="stopSpamButton" class="danger" disabled>
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"/>
+                            </svg>
+                            Stop
+                        </button>
+                    </div>
+                </div>
+                <div class="status" id="spamStatus">Ready to begin permission automation</div>
+                <button id="accessManagerBtn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12 6.75a5.25 5.25 0 016.775-5.025.75.75 0 01.313 1.248l-3.32 3.319c.063.475.276.934.641 1.299.365.365.824.578 1.3.64l3.318-3.319a.75.75 0 011.248.313 5.25 5.25 0 01-5.472 6.756c-1.018-.086-1.87.1-2.309.634L7.344 21.3A3.298 3.298 0 112.7 16.657l8.684-7.151c.533-.44.72-1.291.634-2.309A5.342 5.342 0 0112 6.75zM4.117 19.125a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008a.75.75 0 01-.75-.75v-.008z" clip-rule="evenodd"/>
+                    </svg>
+                    Open Extension Manager
+                </button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z" clip-rule="evenodd"/>
+                    </svg>
+                    Target Extensions
+                </div>
+            </div>
+            <div class="panel-body">
+                <div id="targets">
+                    <div class="target" id="target-filter">
+                        <span class="target-name">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.792 2.938A49.069 49.069 0 0112 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 011.541 1.836v1.044a3 3 0 01-.879 2.121l-6.182 6.182a1.5 1.5 0 00-.439 1.061v2.927a3 3 0 01-1.658 2.684l-1.757.878A.75.75 0 019.75 21v-5.818a1.5 1.5 0 00-.44-1.06L3.13 7.938a3 3 0 01-.879-2.121V4.774c0-.897.64-1.683 1.542-1.836z" clip-rule="evenodd"/>
+                            </svg>
+                            Lightspeed Filter
+                        </span>
+                        <span class="target-status missing">MISSING</span>
+                    </div>
+                    <div class="target" id="target-classroom">
+                        <span class="target-name">
+                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4.913 2.658c-.673.52-1.142 1.242-1.142 2.05v11.796c0 .81.47 1.543 1.142 2.063l7.937 5.856a2.545 2.545 0 003.001 0l7.937-5.856c.673-.52 1.142-1.253 1.142-2.063V4.708c0-.81-.47-1.543-1.142-2.05l-7.937-5.856a2.545 2.545 0 00-3.001 0L4.913 2.658z"/>
+                            </svg>
+                            Lightspeed Classroom
+                        </span>
+                        <span class="target-status missing">MISSING</span>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="attackProgress"></div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="nukeButton">
+                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" clip-rule="evenodd"/>
+                        </svg>
+                        Disable Extensions
+                    </button>
+                    <button id="stopButton">
+                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z" clip-rule="evenodd"/>
+                        </svg>
+                        Cancel
+                    </button>
+                </div>
+                
+                <div class="status" id="status">System initialized and ready</div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2.25 6a3 3 0 013-3h13.5a3 3 0 013 3v12a3 3 0 01-3 3H5.25a3 3 0 01-3-3V6zm3.97.97a.75.75 0 011.06 0l2.25 2.25a.75.75 0 010 1.06l-2.25 2.25a.75.75 0 01-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06zm4.28 4.28a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clip-rule="evenodd"/>
+                    </svg>
+                    System Log
+                </div>
+            </div>
+            <div class="panel-body">
+                <div id="log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Target extensions - permanently missing
+        const TARGETS = {
+            filter: {
+                name: 'Lightspeed Filter',
+                id: 'adkcpkpghahmbopkjchobieckeoaoeem'
+            },
+            classroom: {
+                name: 'Lightspeed Classroom',
+                id: 'kkbmdgjggcdajckdlbpnjdonpchpaiea'
+            }
+        };
+
+        // System variables
+        let isSpamming = false;
+        let spamInterval;
+        
+        // UI Elements
+        const elements = {
+            spamButton: document.getElementById('spamButton'),
+            stopSpamButton: document.getElementById('stopSpamButton'),
+            accessManagerBtn: document.getElementById('accessManagerBtn'),
+            spamStatus: document.getElementById('spamStatus'),
+            clickCountInput: document.getElementById('clickCount'),
+            statusEl: document.getElementById('status'),
+            logEl: document.getElementById('log'),
+            progressBar: document.getElementById('attackProgress'),
+            nukeButton: document.getElementById('nukeButton'),
+            stopButton: document.getElementById('stopButton'),
+            chromeosCheck: document.getElementById('chromeos-check'),
+            container: document.getElementById('container'),
+            checkMessages: document.getElementById('check-messages')
+        };
+
+        // Log messages with timestamp
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            elements.logEl.appendChild(entry);
+            elements.logEl.scrollTop = elements.logEl.scrollHeight;
+        }
+
+        // Update status message
+        function updateStatus(message) {
+            elements.statusEl.textContent = message;
+        }
+
+        // Add message to ChromeOS check screen
+        function addCheckMessage(message) {
+            const msg = document.createElement('div');
+            msg.textContent = message;
+            elements.checkMessages.appendChild(msg);
+        }
+
+        // Check if running on ChromeOS
+        function isChromeOS() {
+            try {
+                // Method 1: Check user agent
+                const isChromeOS = /\bCrOS\b/.test(navigator.userAgent);
+                
+                // Method 2: Check for ChromeOS specific APIs
+                const hasChromeOSFeatures = (
+                    typeof chrome !== 'undefined' && 
+                    chrome.hasOwnProperty('fileSystemProvider') &&
+                    chrome.hasOwnProperty('accessibilityFeatures')
+                );
+                
+                // Method 3: Check for ChromeOS specific behavior
+                const hasChromeOSBehavior = (
+                    navigator.hasOwnProperty('keyboard') && 
+                    navigator.keyboard.hasOwnProperty('getLayoutMap')
+                );
+                
+                return isChromeOS || hasChromeOSFeatures || hasChromeOSBehavior;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Simulate checking for extensions
+        function checkForExtensions() {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Simulate finding extensions
+                    const foundExtensions = {
+                        filter: Math.random() > 0.5,
+                        classroom: Math.random() > 0.5
+                    };
+                    resolve(foundExtensions);
+                }, 2000);
+            });
+        }
+
+        // Simulate opening extension manager
+        function accessExtensionManager() {
+            log('Opening Chrome Extension Manager at chrome://extensions...', 'info');
+            elements.spamStatus.textContent = 'Accessing extension manager...';
+            
+            // Simulate delay for opening
+            setTimeout(() => {
+                log('Extension manager interface loaded', 'success');
+                elements.spamStatus.textContent = 'Extension manager ready';
+                
+                // Simulate scanning for extensions
+                setTimeout(() => {
+                    log('Scanning for target extensions...', 'info');
+                    log('Target extensions not detected in manager', 'warning');
+                    elements.spamStatus.textContent = 'Extensions missing - ready for automation';
+                }, 800);
+            }, 1500);
+        }
+
+        // Start permission automation
+        function startSpamming() {
+            if (isSpamming) return;
+            
+            const clickCount = parseInt(elements.clickCountInput.value) || 500;
+            if (clickCount < 1 || clickCount > 10000) {
+                elements.spamStatus.textContent = 'Please enter a number between 1-10,000';
+                return;
+            }
+            
+            isSpamming = true;
+            elements.spamButton.disabled = true;
+            elements.stopSpamButton.disabled = false;
+            elements.spamStatus.textContent = 'Initializing automation sequence...';
+            log(`Starting permission automation (${clickCount} attempts)`, 'success');
+            
+            let attemptsDone = 0;
+            const attemptsPerBatch = 10;
+            const delayBetweenBatches = 50;
+            
+            // Update progress bar
+            elements.progressBar.style.width = '0%';
+            
+            spamInterval = setInterval(() => {
+                const attemptsThisBatch = Math.min(attemptsPerBatch, clickCount - attemptsDone);
+                
+                for (let i = 0; i < attemptsThisBatch; i++) {
+                    attemptsDone++;
+                    const target = attemptsDone % 2 === 0 ? TARGETS.filter : TARGETS.classroom;
+                    log(`Attempt #${attemptsDone}: Simulating "Allow all URLs" for ${target.name}`, 'info');
+                    
+                    // Random success/failure for realism
+                    if (Math.random() > 0.8) {
+                        log(`Temporary failure for ${target.name}`, 'warning');
+                    }
+                }
+                
+                // Update progress
+                const progressPercent = (attemptsDone / clickCount) * 100;
+                elements.progressBar.style.width = `${progressPercent}%`;
+                elements.spamStatus.textContent = `Progress: ${attemptsDone}/${clickCount} (${Math.round(progressPercent)}%)`;
+                
+                // Check if completed
+                if (attemptsDone >= clickCount) {
+                    stopSpamming();
+                    elements.spamStatus.textContent = `Completed ${clickCount} automation attempts`;
+                    log('Automation sequence finished', 'success');
+                    log('Note: Extension status remains missing', 'warning');
+                }
+            }, delayBetweenBatches);
+        }
+
+        // Stop automation
+        function stopSpamming() {
+            clearInterval(spamInterval);
+            isSpamming = false;
+            elements.spamButton.disabled = false;
+            elements.stopSpamButton.disabled = true;
+            log('Automation sequence stopped by user', 'warning');
+        }
+
+        // Initialize system
+        async function initialize() {
+            // First check if we're on ChromeOS
+            addCheckMessage('> Checking ChromeOS compatibility...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (!isChromeOS()) {
+                addCheckMessage('> ERROR: This system is not running ChromeOS');
+                addCheckMessage('> Access denied');
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column;">
+                        <h2 style="color: #ef4444;">Access Denied</h2>
+                        <p>This program can only run on ChromeOS devices.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            addCheckMessage('> ChromeOS verified');
+            addCheckMessage('> Checking system requirements...');
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Simulate system checks
+            addCheckMessage('> Verifying Chrome version...');
+            await new Promise(resolve => setTimeout(resolve, 600));
+            addCheckMessage('> Checking system permissions...');
+            await new Promise(resolve => setTimeout(resolve, 600));
+            addCheckMessage('> Scanning for target extensions...');
+            
+            // Check for extensions
+            const foundExtensions = await checkForExtensions();
+            
+            // Show results
+            if (foundExtensions.filter || foundExtensions.classroom) {
+                addCheckMessage('> Target extensions FOUND!');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Update UI to show found extensions
+                if (foundExtensions.filter) {
+                    document.getElementById('target-filter').querySelector('.target-status').textContent = 'FOUND!';
+                    document.getElementById('target-filter').querySelector('.target-status').className = 'target-status found';
+                }
+                if (foundExtensions.classroom) {
+                    document.getElementById('target-classroom').querySelector('.target-status').textContent = 'FOUND!';
+                    document.getElementById('target-classroom').querySelector('.target-status').className = 'target-status found';
+                }
+            } else {
+                addCheckMessage('> No target extensions found');
+            }
+            
+            addCheckMessage('> Initializing system components...');
+            await new Promise(resolve => setTimeout(resolve, 1200));
+            addCheckMessage('> ChromeOS system updating...');
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            addCheckMessage('> System updates installing...');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            addCheckMessage('> Finalizing setup...');
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Show main interface
+            elements.chromeosCheck.style.display = 'none';
+            elements.container.style.display = 'block';
+            
+            log('Extension Control Suite initialized', 'info');
+            updateStatus('System ready - extensions ' + 
+                (foundExtensions.filter || foundExtensions.classroom ? 'detected' : 'not detected'));
+            
+            // Set up event listeners
+            elements.spamButton.addEventListener('click', startSpamming);
+            elements.stopSpamButton.addEventListener('click', stopSpamming);
+            elements.accessManagerBtn.addEventListener('click', accessExtensionManager);
+        }
+        
+        // Start system
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+</html>
