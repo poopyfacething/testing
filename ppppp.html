@@ -1,159 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Neon Extension Control</title>
+    <title>Extension Control Panel</title>
     <style>
         :root {
-            --primary: #00a8ff;
-            --primary-dark: #0097e6;
-            --secondary: #00d2d3;
-            --danger: #e84118;
-            --warning: #fbc531;
-            --dark: #1e272e;
-            --darker: #1a2228;
-            --light: #f5f6fa;
-            --medium: #dcdde1;
-            --text: #f5f6fa;
-            --text-dark: #1e272e;
-            --neon-glow: 0 0 10px rgba(0, 168, 255, 0.7);
-        }
-        
-        @font-face {
-            font-family: 'Orbitron';
-            src: url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #d97706;
+            --background: #f8fafc;
+            --panel: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-light: #64748b;
         }
         
         body {
-            font-family: 'Orbitron', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
             color: var(--text);
             margin: 0;
             padding: 20px;
-            line-height: 1.6;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(0, 168, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(0, 210, 211, 0.1) 0%, transparent 50%);
+            line-height: 1.5;
         }
         
         #container {
             max-width: 900px;
             margin: 0 auto;
-            background-color: var(--darker);
+            background-color: var(--panel);
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(0, 168, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        #container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            box-shadow: var(--neon-glow);
-        }
-        
-        h1, h2, h3 {
-            color: var(--text);
-            font-weight: 500;
-            text-shadow: 0 0 5px rgba(0, 168, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
         }
         
         h1 {
             margin-bottom: 25px;
-            font-size: 28px;
-            border-bottom: 1px solid rgba(0, 168, 255, 0.3);
-            padding-bottom: 15px;
-            letter-spacing: 1px;
-        }
-        
-        h2 {
-            font-size: 22px;
-            margin-top: 30px;
-            color: var(--primary);
-        }
-        
-        h3 {
-            font-size: 18px;
-            margin-top: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
         }
         
         button {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: var(--text);
+            background-color: var(--primary);
+            color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 15px;
+            padding: 10px 20px;
+            font-size: 14px;
             margin: 8px;
             cursor: pointer;
             border-radius: 6px;
             font-weight: 500;
-            transition: all 0.3s ease;
-            min-width: 120px;
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 168, 255, 0.3);
+            transition: all 0.2s ease;
         }
         
         button:hover {
-            box-shadow: 0 0 15px rgba(0, 168, 255, 0.6);
-            transform: translateY(-1px);
-        }
-        
-        button:active {
-            transform: translateY(1px);
+            background-color: var(--primary-dark);
         }
         
         button:disabled {
-            background: var(--darker);
+            background-color: var(--border);
+            color: var(--text-light);
             cursor: not-allowed;
-            color: var(--medium);
-            box-shadow: none;
-            border: 1px solid rgba(0, 168, 255, 0.1);
         }
         
         button.danger {
-            background: linear-gradient(135deg, var(--danger), #c23616);
-        }
-        
-        button.danger:hover {
-            box-shadow: 0 0 15px rgba(232, 65, 24, 0.6);
+            background-color: var(--danger);
         }
         
         button.success {
-            background: linear-gradient(135deg, var(--secondary), #00a8a8);
-        }
-        
-        button.success:hover {
-            box-shadow: 0 0 15px rgba(0, 210, 211, 0.6);
+            background-color: var(--success);
         }
         
         .panel {
-            background: rgba(30, 39, 46, 0.7);
+            background-color: var(--panel);
             border-radius: 8px;
             padding: 20px;
             margin: 20px 0;
-            border: 1px solid rgba(0, 168, 255, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .panel::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            border: 1px solid var(--border);
         }
         
         .panel-header {
@@ -162,18 +87,13 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0, 168, 255, 0.1);
+            border-bottom: 1px solid var(--border);
         }
         
         .panel-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--primary);
-            letter-spacing: 1px;
-        }
-        
-        .panel-body {
-            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
         }
         
         .form-group {
@@ -184,48 +104,36 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
-            color: var(--medium);
-            letter-spacing: 1px;
-        }
-        
-        input[type="number"], input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            background: rgba(10, 15, 20, 0.5);
-            border: 1px solid rgba(0, 168, 255, 0.3);
-            border-radius: 6px;
-            font-size: 15px;
             color: var(--text);
-            font-family: 'Orbitron', sans-serif;
-            transition: all 0.3s ease;
+            font-size: 14px;
         }
         
-        input[type="number"]:focus, input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 168, 255, 0.3);
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
         }
         
         .status {
             padding: 12px;
-            background: rgba(10, 15, 20, 0.5);
+            background-color: #f1f5f9;
             border-radius: 6px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            border-left: 3px solid var(--primary);
+            font-family: 'Menlo', monospace;
             margin: 15px 0;
-            color: var(--text);
+            font-size: 13px;
         }
         
         #log {
             height: 250px;
             overflow-y: auto;
-            background: rgba(10, 15, 20, 0.5);
+            background-color: #f8fafc;
             padding: 15px;
-            text-align: left;
-            font-family: 'Consolas', 'Courier New', monospace;
-            border: 1px solid rgba(0, 168, 255, 0.2);
+            border: 1px solid var(--border);
             margin-top: 20px;
             border-radius: 6px;
+            font-family: 'Menlo', monospace;
             font-size: 13px;
         }
         
@@ -233,99 +141,64 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
+            padding: 12px;
             margin: 10px 0;
-            background: rgba(10, 15, 20, 0.5);
+            background-color: #f8fafc;
             border-radius: 6px;
-            border: 1px solid rgba(0, 168, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .target:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 168, 255, 0.1);
+            border: 1px solid var(--border);
         }
         
         .target-name {
             font-weight: 500;
-            color: var(--text);
         }
         
         .target-status {
-            padding: 6px 12px;
+            padding: 4px 8px;
             border-radius: 4px;
             font-weight: 500;
-            font-size: 13px;
+            font-size: 12px;
             color: white;
-            letter-spacing: 1px;
         }
         
         .missing {
-            background: var(--danger);
-            box-shadow: 0 0 10px rgba(232, 65, 24, 0.3);
-            animation: pulseRed 0.8s infinite;
-        }
-        
-        @keyframes pulseRed {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
+            background-color: var(--danger);
         }
         
         .progress-container {
             height: 8px;
-            background: rgba(10, 15, 20, 0.5);
+            background-color: #e2e8f0;
             border-radius: 4px;
             margin: 20px 0;
             overflow: hidden;
-            border: 1px solid rgba(0, 168, 255, 0.2);
         }
         
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background-color: var(--primary);
             width: 0%;
             transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 168, 255, 0.5);
         }
         
         .log-entry {
             margin-bottom: 5px;
             padding-bottom: 5px;
-            border-bottom: 1px solid rgba(0, 168, 255, 0.1);
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .log-entry:last-child {
             border-bottom: none;
         }
         
-        .info {
-            color: var(--medium);
-        }
-        
         .error {
             color: var(--danger);
-            text-shadow: 0 0 5px rgba(232, 65, 24, 0.3);
         }
         
         .success {
-            color: var(--secondary);
-            text-shadow: 0 0 5px rgba(0, 210, 211, 0.3);
+            color: var(--success);
         }
         
         .warning {
             color: var(--warning);
-            text-shadow: 0 0 5px rgba(251, 197, 49, 0.3);
-        }
-        
-        .command {
-            background: rgba(10, 15, 20, 0.7);
-            padding: 12px;
-            border-radius: 6px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            margin: 10px 0;
-            border-left: 3px solid var(--primary);
-            color: var(--text);
         }
         
         .flex-row {
@@ -337,89 +210,43 @@
         .flex-row input {
             flex: 1;
         }
-        
-        .flex-row button {
-            margin: 0;
-        }
-        
-        .terminal-effect {
-            position: relative;
-        }
-        
-        .terminal-effect::after {
-            content: '|';
-            animation: blink 1s infinite;
-            color: var(--primary);
-            position: absolute;
-            right: -8px;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
-        }
-        
-        .glow-text {
-            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
-        }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1><span class="glow-text">NEON</span> EXTENSION CONTROL</h1>
+        <h1>Extension Control Panel</h1>
         
         <div class="panel">
             <div class="panel-header">
-                <div class="panel-title">AUTOMATED PERMISSION MANAGER</div>
+                <div class="panel-title">Permission Automation</div>
             </div>
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="clickCount">SIMULATION INTENSITY:</label>
+                    <label for="clickCount">Number of attempts:</label>
                     <div class="flex-row">
-                        <input type="number" id="clickCount" min="1" max="1000" value="100" placeholder="Number of attempts">
-                        <button id="spamButton" class="success">INITIATE SEQUENCE</button>
-                        <button id="stopSpamButton" class="danger" disabled>ABORT</button>
+                        <input type="number" id="clickCount" min="1" max="1000" value="100">
+                        <button id="spamButton" class="success">Start</button>
+                        <button id="stopSpamButton" class="danger" disabled>Stop</button>
                     </div>
                 </div>
-                <div class="status" id="spamStatus">SYSTEM READY</div>
-                <div class="flex-row" style="justify-content: center;">
-                    <button id="accessManagerBtn">ACCESS EXTENSION MANAGER</button>
-                </div>
+                <div class="status" id="spamStatus">Ready</div>
+                <button id="accessManagerBtn">Open Extension Manager</button>
             </div>
         </div>
         
         <div class="panel">
             <div class="panel-header">
-                <div class="panel-title">TARGET EXTENSIONS</div>
+                <div class="panel-title">Target Extensions</div>
             </div>
             <div class="panel-body">
                 <div id="targets">
                     <div class="target" id="target-filter">
-                        <span class="target-name">LIGHTSPEED FILTER</span>
-                        <span class="target-status missing" id="status-filter">MISSING</span>
+                        <span class="target-name">Lightspeed Filter</span>
+                        <span class="target-status missing">MISSING</span>
                     </div>
                     <div class="target" id="target-classroom">
-                        <span class="target-name">LIGHTSPEED CLASSROOM</span>
-                        <span class="target-status missing" id="status-classroom">MISSING</span>
+                        <span class="target-name">Lightspeed Classroom</span>
+                        <span class="target-status missing">MISSING</span>
                     </div>
                 </div>
                 
@@ -428,17 +255,17 @@
                 </div>
                 
                 <div class="flex-row" style="justify-content: center;">
-                    <button id="nukeButton" disabled>DISABLE EXTENSIONS</button>
-                    <button id="stopButton" disabled>TERMINATE</button>
+                    <button id="nukeButton" disabled>Disable Extensions</button>
+                    <button id="stopButton" disabled>Cancel</button>
                 </div>
                 
-                <div class="status terminal-effect" id="status">SYSTEM INITIALIZED</div>
+                <div class="status" id="status">System ready</div>
             </div>
         </div>
         
         <div class="panel">
             <div class="panel-header">
-                <div class="panel-title">SYSTEM LOG</div>
+                <div class="panel-title">System Log</div>
             </div>
             <div class="panel-body">
                 <div id="log"></div>
@@ -447,35 +274,21 @@
     </div>
 
     <script>
-        // Target extensions - permanently set to missing
+        // Target extensions - permanently missing
         const TARGETS = {
             filter: {
-                id: 'adkcpkpghahmbopkjchobieckeoaoeem',
-                name: 'Lightspeed Filter',
-                detected: false,
-                attacking: false,
-                iconPath: 'icons/icon128.png'
+                name: 'Lightspeed Filter'
             },
             classroom: {
-                id: 'kkbmdgjggcdajckdlbpnjdonpchpaiea',
-                name: 'Lightspeed Classroom',
-                detected: false,
-                attacking: false,
-                iconPath: 'icons/icon128.png'
+                name: 'Lightspeed Classroom'
             }
         };
 
         // System variables
-        let isNuking = false;
         let isSpamming = false;
-        let nukeInterval;
         let spamInterval;
-        let attackCycle = 0;
-        const MAX_CYCLES = 30;
         
         // UI Elements
-        const nukeButton = document.getElementById('nukeButton');
-        const stopButton = document.getElementById('stopButton');
         const spamButton = document.getElementById('spamButton');
         const stopSpamButton = document.getElementById('stopSpamButton');
         const accessManagerBtn = document.getElementById('accessManagerBtn');
@@ -483,9 +296,8 @@
         const clickCountInput = document.getElementById('clickCount');
         const statusEl = document.getElementById('status');
         const logEl = document.getElementById('log');
-        const progressBar = document.getElementById('attackProgress');
 
-        // Log messages with different types
+        // Log messages
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
             const entry = document.createElement('div');
@@ -502,20 +314,17 @@
 
         // Simulate accessing extension manager
         function accessExtensionManager() {
-            log('Attempting to access Chrome Extension Manager...', 'info');
-            spamStatus.textContent = 'ACCESSING CHROME://EXTENSIONS';
+            log('Opening Chrome Extension Manager...', 'info');
+            spamStatus.textContent = 'Accessing chrome://extensions';
             
-            // In a real extension, we would use chrome.tabs.create
-            // This is just a simulation for the UI
             setTimeout(() => {
-                log('Extension Manager interface loaded', 'success');
-                spamStatus.textContent = 'EXTENSION MANAGER ACCESSED';
+                log('Extension Manager loaded', 'success');
+                spamStatus.textContent = 'Extension Manager ready';
                 
-                // Simulate finding our extensions (they'll still show as missing)
                 setTimeout(() => {
                     log('Scanning for target extensions...', 'info');
-                    log('Target extensions not found in manager', 'warning');
-                    spamStatus.textContent = 'TARGETS NOT FOUND - READY FOR AUTOMATION';
+                    log('Target extensions not found', 'warning');
+                    spamStatus.textContent = 'Extensions missing - ready for automation';
                 }, 800);
             }, 1500);
         }
@@ -526,44 +335,36 @@
             
             const clickCount = parseInt(clickCountInput.value) || 100;
             if (clickCount < 1 || clickCount > 1000) {
-                spamStatus.textContent = 'INVALID INPUT: ENTER 1-1000';
+                spamStatus.textContent = 'Please enter 1-1000';
                 return;
             }
             
             isSpamming = true;
             spamButton.disabled = true;
             stopSpamButton.disabled = false;
-            spamStatus.textContent = 'INITIALIZING AUTOMATION SEQUENCE...';
-            log(`Starting permission automation (${clickCount} attempts)`, 'success');
+            spamStatus.textContent = 'Starting automation...';
+            log(`Beginning permission automation (${clickCount} attempts)`, 'success');
             
             let attemptsDone = 0;
             const attemptsPerBatch = 5;
             const delayBetweenBatches = 100;
             
-            // Simulate rapid permission changes
             spamInterval = setInterval(() => {
                 const attemptsThisBatch = Math.min(attemptsPerBatch, clickCount - attemptsDone);
                 
                 for (let i = 0; i < attemptsThisBatch; i++) {
                     attemptsDone++;
                     const target = attemptsDone % 2 === 0 ? TARGETS.filter : TARGETS.classroom;
-                    log(`Attempt #${attemptsDone}: Simulating "Allow all URLs" for ${target.name}`, 'info');
-                    
-                    // Simulate some random success/failure
-                    if (Math.random() > 0.7) {
-                        log(`Permission change failed for ${target.name}`, 'error');
-                    } else {
-                        log(`Permission change attempted for ${target.name}`, 'success');
-                    }
+                    log(`Attempt #${attemptsDone}: Simulating permission change for ${target.name}`, 'info');
                 }
                 
-                spamStatus.textContent = `AUTOMATION IN PROGRESS: ${attemptsDone}/${clickCount} (${Math.round((attemptsDone/clickCount)*100)}%)`;
+                spamStatus.textContent = `Progress: ${attemptsDone}/${clickCount} (${Math.round((attemptsDone/clickCount)*100)}%)`;
                 
                 if (attemptsDone >= clickCount) {
                     stopSpamming();
-                    spamStatus.textContent = `SEQUENCE COMPLETE: ${clickCount} ATTEMPTS`;
+                    spamStatus.textContent = `Completed ${clickCount} attempts`;
                     log('Automation sequence completed', 'success');
-                    log('Note: Extensions still show as missing - simulation only', 'warning');
+                    log('Note: Extensions remain missing', 'warning');
                 }
             }, delayBetweenBatches);
         }
@@ -574,25 +375,13 @@
             isSpamming = false;
             spamButton.disabled = false;
             stopSpamButton.disabled = true;
-            log('Automation sequence aborted', 'warning');
+            log('Automation stopped', 'warning');
         }
 
         // Initialize system
         function initialize() {
-            log('Initializing NEON Extension Control System...', 'info');
-            updateStatus('SCANNING FOR TARGET EXTENSIONS...');
-            
-            // Force extensions to remain missing
-            document.getElementById('status-filter').textContent = 'MISSING';
-            document.getElementById('status-filter').className = 'target-status missing';
-            document.getElementById('status-classroom').textContent = 'MISSING';
-            document.getElementById('status-classroom').className = 'target-status missing';
-            
-            // Simulate scan (extensions will remain missing)
-            setTimeout(() => {
-                log('Scan complete: No target extensions detected', 'warning');
-                updateStatus('READY - NO TARGETS DETECTED');
-            }, 2000);
+            log('System initialized', 'info');
+            updateStatus('Ready');
             
             // Set up event listeners
             spamButton.addEventListener('click', startSpamming);
