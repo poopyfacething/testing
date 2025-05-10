@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Print Extension main.js</title>
+</head>
+<body>
+  <iframe id="printFrame" style="display:none;"></iframe>
+
+  <script>
+    async function fetchAndPrintExtensionJS() {
+      try {
+        const res = await fetch('chrome-extension://fkciliccbdebpkhcagngacmpfiofliia/main.js');
+        const jsText = await res.text();
+
+        const content = `
+          <html>
+            <head><title>Extension JS</title></head>
+            <body>
+              <h2>main.js from Extension</h2>
+              <pre style="white-space: pre-wrap; word-break: break-word;">${jsText.replace(/</g, '&lt;')}</pre>
+            </body>
+          </html>
+        `;
+
+        const frame = document.getElementById('printFrame');
+        const frameDoc = frame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(content);
+        frameDoc.close();
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (err) {
+        console.error('Could not fetch main.js:', err);
+        alert('Failed to load extension script. Ensure it is marked as web_accessible.');
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        fetchAndPrintExtensionJS();
+      }
+    });
+  </script>
+</body>
+</html>
