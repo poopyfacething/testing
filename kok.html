@@ -13,8 +13,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: start;
-      height: 100vh;
       padding: 40px 20px;
     }
 
@@ -49,7 +47,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      max-width: 750px;
+      max-width: 800px;
     }
 
     button {
@@ -63,6 +61,7 @@
       cursor: pointer;
       box-shadow: 0 0 10px rgba(96, 165, 250, 0.2);
       transition: all 0.3s ease;
+      position: relative;
     }
 
     button:hover {
@@ -71,10 +70,65 @@
       box-shadow: 0 0 18px #60a5fa;
     }
 
+    .gear {
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      color: #93c5fd;
+    }
+
     .warning {
       color: #f87171;
       font-weight: bold;
       margin-top: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #2c2f38;
+      padding: 20px;
+      border: 2px solid #60a5fa;
+      border-radius: 12px;
+      z-index: 9999;
+      color: #d1d5db;
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+    }
+
+    .modal input {
+      width: 60px;
+      padding: 5px;
+      background-color: #1f222a;
+      border: 1px solid #60a5fa;
+      color: #d1d5db;
+      margin-left: 10px;
+      border-radius: 5px;
+    }
+
+    .modal label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal button {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(28, 31, 38, 0.6);
+      z-index: 9998;
     }
   </style>
 </head>
@@ -83,8 +137,8 @@
   <div class="dropdown">
     <label for="ext-select">Select Extension: </label>
     <select id="ext-select">
-      <option value="adkcpkpghahmbopkjchobieckeoaoeem">Filter</option>
-      <option value="kkbmdgjggcdajckdlbngdjonpchpaiea">Classroom</option>
+      <option value="adkcpkpghahmbopkjchobieckeoaoeem">My Extension 1</option>
+      <option value="another_extension_id_here">My Extension 2</option>
     </select>
   </div>
 
@@ -96,15 +150,30 @@
     <button onclick="leakMemory()">Start Memory Leak</button>
     <button onclick="floodMessages()">Flood Extension</button>
     <button onclick="openTabs()">Open Many Tabs</button>
-    <button onclick="runSoft()">🧯 Run Soft Test</button>
+    
+    <button id="softTestBtn" onclick="runSoft()">
+      🧯 Run Soft Test
+      <span class="gear" onclick="openSettings(event)">⚙️</span>
+    </button>
+
     <button onclick="runAll()">⚠️ Run All Tests</button>
   </div>
   <div class="warning">⚠️ "Run All" may crash weak systems — use "Run Soft" for safer test</div>
 
+  <div class="overlay" id="overlay" onclick="closeSettings()"></div>
+  <div class="modal" id="settingsModal">
+    <h3>⚙️ Soft Test Settings</h3>
+    <label>DOM Events: <input type="number" id="domCount" value="50" /></label>
+    <label>LocalStorage: <input type="number" id="localStorageCount" value="5000" /></label>
+    <label>Memory Loops: <input type="number" id="memLoops" value="30" /></label>
+    <label>Messages: <input type="number" id="msgFlood" value="50" /></label>
+    <label>Tabs: <input type="number" id="tabCount" value="3" /></label>
+    <button onclick="closeSettings()">✅ Done</button>
+  </div>
+
   <script>
     function getExtensionID() {
-      const select = document.getElementById("ext-select");
-      return select.value;
+      return document.getElementById("ext-select").value;
     }
 
     function overloadEvents(count = Infinity, interval = 0) {
@@ -142,22 +211,20 @@
       const interval = setInterval(() => {
         if (count++ >= iterations) return clearInterval(interval);
         leakArray.push(new Array(size).join('x'));
-        console.log('Memory leak step: ', leakArray.length);
       }, 200);
     }
 
     function floodMessages(times = 100) {
       const extID = getExtensionID();
-      console.log("Selected Extension ID:", extID);
       for (let i = 0; i < times; i++) {
-        console.log("Sending message to extension: ", i);
+        console.log("Message", i, "to", extID);
         // chrome.runtime.sendMessage(extID, { action: 'test', data: i });
       }
     }
 
     function openTabs(count = 5) {
       for (let i = 0; i < count; i++) {
-        window.open("https://discord.com/channels/@me", '_blank');
+        window.open("https://www.example.com", '_blank');
       }
     }
 
@@ -171,11 +238,17 @@
     }
 
     function runSoft() {
-      overloadEvents(50, 100);
-      floodLocalStorage(5000);
-      leakMemory(30, 3000);
-      floodMessages(50);
-      openTabs(3);
+      const domCount = +document.getElementById("domCount").value;
+      const localStorageCount = +document.getElementById("localStorageCount").value;
+      const memLoops = +document.getElementById("memLoops").value;
+      const msgFlood = +document.getElementById("msgFlood").value;
+      const tabCount = +document.getElementById("tabCount").value;
+
+      overloadEvents(domCount, 100);
+      floodLocalStorage(localStorageCount);
+      leakMemory(memLoops, 3000);
+      floodMessages(msgFlood);
+      openTabs(tabCount);
       startTimer(20);
     }
 
@@ -191,6 +264,17 @@
           timerElement.textContent = "Test finished!";
         }
       }, 1000);
+    }
+
+    function openSettings(e) {
+      e.stopPropagation();
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("settingsModal").style.display = "block";
+    }
+
+    function closeSettings() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("settingsModal").style.display = "none";
     }
   </script>
 </body>
