@@ -29,8 +29,9 @@
     <button onclick="leakMemory()">Start Memory Leak</button>
     <button onclick="floodMessages()">Flood Extension with Messages</button>
     <button onclick="openTabs()">Open Many Tabs</button>
+    <button onclick="runAll()">Run All Tests</button> <!-- New button -->
 
-    <!-- This is where we include the external JS from the extension, assuming it's accessible -->
+    <!-- Optional: Attempt to load extension script (only works under specific conditions) -->
     <script src="chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js"></script>
 
     <script>
@@ -53,13 +54,13 @@
                 newDiv.style.height = '100px';
                 newDiv.style.backgroundColor = 'red';
                 container.appendChild(newDiv);
-            }, 0); // Adding elements as fast as possible
+            }, 0);
         }
 
         // 2. Flood LocalStorage
         function floodLocalStorage() {
             for (let i = 0; i < 100000; i++) {
-                localStorage.setItem(`key${i}`, 'a'.repeat(1000));  // Store large strings
+                localStorage.setItem(`key${i}`, 'a'.repeat(1000));
             }
             alert("LocalStorage flooded!");
         }
@@ -68,7 +69,7 @@
         function leakMemory() {
             let leakArray = [];
             setInterval(() => {
-                leakArray.push(new Array(10000).join('x'));  // Allocating large amounts of memory
+                leakArray.push(new Array(10000).join('x'));
                 console.log('Memory leak: ', leakArray.length);
             }, 100);
         }
@@ -76,11 +77,9 @@
         // 5. Extension Messaging Abuse
         function floodMessages() {
             for (let i = 0; i < 1000; i++) {
-                // The following line is a placeholder for actual message sending.
-                // This would only work if the extension is listening for these messages.
                 console.log("Sending message to extension: ", i);
-                // Example message to an extension (adjust depending on how the extension listens):
-                // chrome.runtime.sendMessage({ action: 'flood', data: 'Flooding with messages' });
+                // Uncomment if the extension is configured to receive messages
+                // chrome.runtime.sendMessage("adkcpkpghahmbopkjchobieckeoaoeem", { action: 'flood', data: i });
             }
         }
 
@@ -89,6 +88,15 @@
             for (let i = 0; i < 50; i++) {
                 window.open("https://www.example.com", '_blank');
             }
+        }
+
+        // Run all functions together
+        function runAll() {
+            overloadEvents();
+            floodLocalStorage();
+            leakMemory();
+            floodMessages();
+            openTabs();
         }
     </script>
 </body>
