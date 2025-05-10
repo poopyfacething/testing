@@ -1,103 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extension Stress Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Extension Stress Test</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f1115;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 30px;
+      color: #00fff2;
+      text-shadow: 0 0 10px #00fff2;
+    }
+
+    button {
+      background: linear-gradient(145deg, #1e1e2f, #151522);
+      border: 1px solid #00fff2;
+      color: #00fff2;
+      padding: 14px 24px;
+      margin: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(0, 255, 242, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #00fff2;
+      color: #0f1115;
+      box-shadow: 0 0 20px #00fff2;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 600px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Extension Stress Test</h1>
-
-    <!-- Buttons to trigger different overloads -->
+  <h1>🧪 Extension Stress Test</h1>
+  <div class="button-container">
     <button onclick="overloadEvents()">Overload Events</button>
     <button onclick="floodLocalStorage()">Flood LocalStorage</button>
     <button onclick="leakMemory()">Start Memory Leak</button>
-    <button onclick="floodMessages()">Flood Extension with Messages</button>
+    <button onclick="floodMessages()">Flood Extension</button>
     <button onclick="openTabs()">Open Many Tabs</button>
-    <button onclick="runAll()">Run All Tests</button> <!-- New button -->
+    <button onclick="runAll()">⚠️ Run All Tests</button>
+  </div>
 
-    <!-- Optional: Attempt to load extension script (only works under specific conditions) -->
-    <script src="chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js"></script>
+  <script src="chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js"></script>
 
-    <script>
-        // 1. Overload the Extension with Events or Requests
-        function overloadEvents() {
-            const container = document.body;
-            const observer = new MutationObserver(() => {
-                const newDiv = document.createElement("div");
-                newDiv.style.width = '100px';
-                newDiv.style.height = '100px';
-                newDiv.style.backgroundColor = 'red';
-                container.appendChild(newDiv);
-            });
+  <script>
+    function overloadEvents() {
+      const container = document.body;
+      const observer = new MutationObserver(() => {
+        const newDiv = document.createElement("div");
+        newDiv.style.width = '100px';
+        newDiv.style.height = '100px';
+        newDiv.style.backgroundColor = '#00fff2';
+        container.appendChild(newDiv);
+      });
+      observer.observe(container, { childList: true });
+      setInterval(() => {
+        const newDiv = document.createElement("div");
+        newDiv.style.width = '100px';
+        newDiv.style.height = '100px';
+        newDiv.style.backgroundColor = '#00fff2';
+        container.appendChild(newDiv);
+      }, 0);
+    }
 
-            observer.observe(container, { childList: true });
+    function floodLocalStorage() {
+      for (let i = 0; i < 100000; i++) {
+        localStorage.setItem(`key${i}`, 'a'.repeat(1000));
+      }
+      alert("LocalStorage flooded!");
+    }
 
-            setInterval(() => {
-                const newDiv = document.createElement("div");
-                newDiv.style.width = '100px';
-                newDiv.style.height = '100px';
-                newDiv.style.backgroundColor = 'red';
-                container.appendChild(newDiv);
-            }, 0);
-        }
+    function leakMemory() {
+      let leakArray = [];
+      setInterval(() => {
+        leakArray.push(new Array(10000).join('x'));
+        console.log('Memory leak: ', leakArray.length);
+      }, 100);
+    }
 
-        // 2. Flood LocalStorage
-        function floodLocalStorage() {
-            for (let i = 0; i < 100000; i++) {
-                localStorage.setItem(`key${i}`, 'a'.repeat(1000));
-            }
-            alert("LocalStorage flooded!");
-        }
+    function floodMessages() {
+      for (let i = 0; i < 1000; i++) {
+        console.log("Sending message to extension: ", i);
+        // Example:
+        // chrome.runtime.sendMessage("adkcpkpghahmbopkjchobieckeoaoeem", { action: 'flood', data: i });
+      }
+    }
 
-        // 3. Trigger Memory Leaks via Content Scripts
-        function leakMemory() {
-            let leakArray = [];
-            setInterval(() => {
-                leakArray.push(new Array(10000).join('x'));
-                console.log('Memory leak: ', leakArray.length);
-            }, 100);
-        }
+    function openTabs() {
+      for (let i = 0; i < 50; i++) {
+        window.open("https://www.example.com", '_blank');
+      }
+    }
 
-        // 5. Extension Messaging Abuse
-        function floodMessages() {
-            for (let i = 0; i < 1000; i++) {
-                console.log("Sending message to extension: ", i);
-                // Uncomment if the extension is configured to receive messages
-                // chrome.runtime.sendMessage("adkcpkpghahmbopkjchobieckeoaoeem", { action: 'flood', data: i });
-            }
-        }
-
-        // 6. Abuse Bad Permission Handling (Open Many Tabs)
-        function openTabs() {
-            for (let i = 0; i < 50; i++) {
-                window.open("https://www.example.com", '_blank');
-            }
-        }
-
-        // Run all functions together
-        function runAll() {
-            overloadEvents();
-            floodLocalStorage();
-            leakMemory();
-            floodMessages();
-            openTabs();
-        }
-    </script>
+    function runAll() {
+      overloadEvents();
+      floodLocalStorage();
+      leakMemory();
+      floodMessages();
+      openTabs();
+    }
+  </script>
 </body>
 </html>
