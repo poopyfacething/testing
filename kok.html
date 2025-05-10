@@ -20,7 +20,7 @@
 
     h1 {
       font-size: 2rem;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       color: #60a5fa;
       text-shadow: 0 0 10px #3b82f6;
     }
@@ -30,6 +30,26 @@
       color: #93c5fd;
       margin-bottom: 20px;
       font-weight: bold;
+    }
+
+    .dropdown {
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 10px;
+      background-color: #2c2f38;
+      color: #60a5fa;
+      border: 1px solid #60a5fa;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 750px;
     }
 
     button {
@@ -51,30 +71,43 @@
       box-shadow: 0 0 18px #60a5fa;
     }
 
-    .button-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 700px;
+    .warning {
+      color: #f87171;
+      font-weight: bold;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
   <h1>🧪 Extension Stress Test</h1>
+  <div class="dropdown">
+    <label for="ext-select">Select Extension: </label>
+    <select id="ext-select">
+      <option value="adkcpkpghahmbopkjchobieckeoaoeem">Filter</option>
+      <option value="kkbmdgjggcdajckdlbngdjonpchpaiea">Classroom</option>
+    </select>
+  </div>
+
   <div class="timer" id="timer">Time left: --</div>
+
   <div class="button-container">
     <button onclick="overloadEvents()">Overload Events</button>
     <button onclick="floodLocalStorage()">Flood LocalStorage</button>
     <button onclick="leakMemory()">Start Memory Leak</button>
     <button onclick="floodMessages()">Flood Extension</button>
     <button onclick="openTabs()">Open Many Tabs</button>
+    <button onclick="runSoft()">🧯 Run Soft Test</button>
     <button onclick="runAll()">⚠️ Run All Tests</button>
   </div>
-
-  <script src="chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js"></script>
+  <div class="warning">⚠️ "Run All" may crash weak systems — use "Run Soft" for safer test</div>
 
   <script>
-    function overloadEvents() {
+    function getExtensionID() {
+      const select = document.getElementById("ext-select");
+      return select.value;
+    }
+
+    function overloadEvents(count = Infinity, interval = 0) {
       const container = document.body;
       const observer = new MutationObserver(() => {
         const newDiv = document.createElement("div");
@@ -84,50 +117,66 @@
         container.appendChild(newDiv);
       });
       observer.observe(container, { childList: true });
-      setInterval(() => {
+
+      let added = 0;
+      const loop = setInterval(() => {
+        if (added++ >= count) return clearInterval(loop);
         const newDiv = document.createElement("div");
         newDiv.style.width = '100px';
         newDiv.style.height = '100px';
         newDiv.style.backgroundColor = '#60a5fa';
         container.appendChild(newDiv);
-      }, 0);
+      }, interval);
     }
 
-    function floodLocalStorage() {
-      for (let i = 0; i < 100000; i++) {
-        localStorage.setItem(`key${i}`, 'a'.repeat(1000));
+    function floodLocalStorage(entries = 10000) {
+      for (let i = 0; i < entries; i++) {
+        localStorage.setItem(`key${i}`, 'a'.repeat(500));
       }
       alert("LocalStorage flooded!");
     }
 
-    function leakMemory() {
+    function leakMemory(iterations = 50, size = 5000) {
       let leakArray = [];
-      setInterval(() => {
-        leakArray.push(new Array(10000).join('x'));
-        console.log('Memory leak: ', leakArray.length);
-      }, 100);
+      let count = 0;
+      const interval = setInterval(() => {
+        if (count++ >= iterations) return clearInterval(interval);
+        leakArray.push(new Array(size).join('x'));
+        console.log('Memory leak step: ', leakArray.length);
+      }, 200);
     }
 
-    function floodMessages() {
-      for (let i = 0; i < 1000; i++) {
+    function floodMessages(times = 100) {
+      const extID = getExtensionID();
+      console.log("Selected Extension ID:", extID);
+      for (let i = 0; i < times; i++) {
         console.log("Sending message to extension: ", i);
-        // chrome.runtime.sendMessage("adkcpkpghahmbopkjchobieckeoaoeem", { action: 'flood', data: i });
+        // chrome.runtime.sendMessage(extID, { action: 'test', data: i });
       }
     }
 
-    function openTabs() {
-      for (let i = 0; i < 50; i++) {
-        window.open("https://proxyium.com/", '_blank');
+    function openTabs(count = 5) {
+      for (let i = 0; i < count; i++) {
+        window.open("https://discord.com/channels/@me", '_blank');
       }
     }
 
     function runAll() {
-      overloadEvents();
-      floodLocalStorage();
-      leakMemory();
-      floodMessages();
-      openTabs();
-      startTimer(60); // start 60-second countdown
+      overloadEvents(); // infinite
+      floodLocalStorage(100000);
+      leakMemory(200, 10000);
+      floodMessages(1000);
+      openTabs(50);
+      startTimer(60);
+    }
+
+    function runSoft() {
+      overloadEvents(50, 100);
+      floodLocalStorage(5000);
+      leakMemory(30, 3000);
+      floodMessages(50);
+      openTabs(3);
+      startTimer(20);
     }
 
     function startTimer(seconds) {
