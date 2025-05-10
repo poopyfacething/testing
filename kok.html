@@ -8,8 +8,8 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0f1115;
-      color: #e0e0e0;
+      background-color: #1c1f26;
+      color: #d1d5db;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,34 +21,34 @@
     h1 {
       font-size: 2rem;
       margin-bottom: 30px;
-      color: #00fff2;
-      text-shadow: 0 0 10px #00fff2;
+      color: #60a5fa;
+      text-shadow: 0 0 10px #3b82f6;
     }
 
     button {
-      background: linear-gradient(145deg, #1e1e2f, #151522);
-      border: 1px solid #00fff2;
-      color: #00fff2;
+      background: linear-gradient(145deg, #2c2f38, #1f222a);
+      border: 1px solid #60a5fa;
+      color: #60a5fa;
       padding: 14px 24px;
       margin: 10px;
       font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 0 12px rgba(0, 255, 242, 0.3);
+      box-shadow: 0 0 10px rgba(96, 165, 250, 0.2);
       transition: all 0.3s ease;
     }
 
     button:hover {
-      background: #00fff2;
-      color: #0f1115;
-      box-shadow: 0 0 20px #00fff2;
+      background: #60a5fa;
+      color: #1c1f26;
+      box-shadow: 0 0 18px #60a5fa;
     }
 
     .button-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      max-width: 600px;
+      max-width: 700px;
     }
   </style>
 </head>
@@ -72,7 +72,7 @@
         const newDiv = document.createElement("div");
         newDiv.style.width = '100px';
         newDiv.style.height = '100px';
-        newDiv.style.backgroundColor = '#00fff2';
+        newDiv.style.backgroundColor = '#60a5fa';
         container.appendChild(newDiv);
       });
       observer.observe(container, { childList: true });
@@ -80,7 +80,7 @@
         const newDiv = document.createElement("div");
         newDiv.style.width = '100px';
         newDiv.style.height = '100px';
-        newDiv.style.backgroundColor = '#00fff2';
+        newDiv.style.backgroundColor = '#60a5fa';
         container.appendChild(newDiv);
       }, 0);
     }
@@ -103,7 +103,7 @@
     function floodMessages() {
       for (let i = 0; i < 1000; i++) {
         console.log("Sending message to extension: ", i);
-        // Example:
+        // Real communication requires the extension to listen
         // chrome.runtime.sendMessage("adkcpkpghahmbopkjchobieckeoaoeem", { action: 'flood', data: i });
       }
     }
