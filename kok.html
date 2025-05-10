@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extension Stress Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Extension Stress Test</h1>
+
+    <!-- Buttons to trigger different overloads -->
+    <button onclick="overloadEvents()">Overload Events</button>
+    <button onclick="floodLocalStorage()">Flood LocalStorage</button>
+    <button onclick="leakMemory()">Start Memory Leak</button>
+    <button onclick="floodMessages()">Flood Extension with Messages</button>
+    <button onclick="openTabs()">Open Many Tabs</button>
+
+    <!-- This is where we include the external JS from the extension, assuming it's accessible -->
+    <script src="chrome-extension://adkcpkpghahmbopkjchobieckeoaoeem/main.js"></script>
+
+    <script>
+        // 1. Overload the Extension with Events or Requests
+        function overloadEvents() {
+            const container = document.body;
+            const observer = new MutationObserver(() => {
+                const newDiv = document.createElement("div");
+                newDiv.style.width = '100px';
+                newDiv.style.height = '100px';
+                newDiv.style.backgroundColor = 'red';
+                container.appendChild(newDiv);
+            });
+
+            observer.observe(container, { childList: true });
+
+            setInterval(() => {
+                const newDiv = document.createElement("div");
+                newDiv.style.width = '100px';
+                newDiv.style.height = '100px';
+                newDiv.style.backgroundColor = 'red';
+                container.appendChild(newDiv);
+            }, 0); // Adding elements as fast as possible
+        }
+
+        // 2. Flood LocalStorage
+        function floodLocalStorage() {
+            for (let i = 0; i < 100000; i++) {
+                localStorage.setItem(`key${i}`, 'a'.repeat(1000));  // Store large strings
+            }
+            alert("LocalStorage flooded!");
+        }
+
+        // 3. Trigger Memory Leaks via Content Scripts
+        function leakMemory() {
+            let leakArray = [];
+            setInterval(() => {
+                leakArray.push(new Array(10000).join('x'));  // Allocating large amounts of memory
+                console.log('Memory leak: ', leakArray.length);
+            }, 100);
+        }
+
+        // 5. Extension Messaging Abuse
+        function floodMessages() {
+            for (let i = 0; i < 1000; i++) {
+                // The following line is a placeholder for actual message sending.
+                // This would only work if the extension is listening for these messages.
+                console.log("Sending message to extension: ", i);
+                // Example message to an extension (adjust depending on how the extension listens):
+                // chrome.runtime.sendMessage({ action: 'flood', data: 'Flooding with messages' });
+            }
+        }
+
+        // 6. Abuse Bad Permission Handling (Open Many Tabs)
+        function openTabs() {
+            for (let i = 0; i < 50; i++) {
+                window.open("https://www.example.com", '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
