@@ -20,9 +20,16 @@
 
     h1 {
       font-size: 2rem;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       color: #60a5fa;
       text-shadow: 0 0 10px #3b82f6;
+    }
+
+    .timer {
+      font-size: 1.2rem;
+      color: #93c5fd;
+      margin-bottom: 20px;
+      font-weight: bold;
     }
 
     button {
@@ -54,6 +61,7 @@
 </head>
 <body>
   <h1>🧪 Extension Stress Test</h1>
+  <div class="timer" id="timer">Time left: --</div>
   <div class="button-container">
     <button onclick="overloadEvents()">Overload Events</button>
     <button onclick="floodLocalStorage()">Flood LocalStorage</button>
@@ -103,14 +111,13 @@
     function floodMessages() {
       for (let i = 0; i < 1000; i++) {
         console.log("Sending message to extension: ", i);
-        // Real communication requires the extension to listen
         // chrome.runtime.sendMessage("adkcpkpghahmbopkjchobieckeoaoeem", { action: 'flood', data: i });
       }
     }
 
     function openTabs() {
       for (let i = 0; i < 50; i++) {
-        window.open("https://www.example.com", '_blank');
+        window.open("https://proxyium.com/", '_blank');
       }
     }
 
@@ -120,6 +127,21 @@
       leakMemory();
       floodMessages();
       openTabs();
+      startTimer(60); // start 60-second countdown
+    }
+
+    function startTimer(seconds) {
+      const timerElement = document.getElementById('timer');
+      let remaining = seconds;
+      timerElement.textContent = `Time left: ${remaining}s`;
+      const interval = setInterval(() => {
+        remaining--;
+        timerElement.textContent = `Time left: ${remaining}s`;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          timerElement.textContent = "Test finished!";
+        }
+      }, 1000);
     }
   </script>
 </body>
